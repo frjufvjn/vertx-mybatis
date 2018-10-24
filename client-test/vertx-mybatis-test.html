@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>vertx-mybatis-test</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script type="text/javascript">
+	
+	
+	/*
+		xwing에서 적용할 방법 
+			<xwing:panel id="pnl_download" left="10" top="94" width="93" height="6" visible="false" bordercolor="#ff0000" borderstyle="solid" borderwidth="1" bggradientcolor="#ffff00"></xwing:panel>
+			$pnl_download.setUrl(downUrl);
+	*/
+	
+	var downLoadUrl =  'http://localhost:8081/isportal/data/kbcapital/testuserid/50000/20180701000000/20180730235959/no/no';
+	
+	
+	
+	window.onload = function () {
+		var myframe = document.getElementById("frmHidden");
+		myframe.onload = function() {
+			var that = document.getElementById('frmHidden');
+
+			try{
+				(that.contentWindow||that.contentDocument).location.href;
+			}
+			catch(err){
+				alert("Error (" + err + ")");
+			}
+		}
+	
+		// f_sendPushMessage();
+		// download();
+	};
+	
+	function download() {
+		try {
+			var that = document.getElementById("frmHidden");
+			that.src = downLoadUrl;
+		} catch (e) {
+			console.log(e);
+		}
+		
+		
+		// window.location.href = downLoadUrl;
+		
+		// window.open(downLoadUrl, "_bank", "width=494, height=146");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	var f_sendPushMessage = function() {
+		try {
+			$.support.cors = true; // For IE
+			$.ajax({
+				type : 'GET',
+				url : 'http://localhost:8081/isportal/data/kbcapital/testuserid/10/20180701000000/20180730235959/no/no',
+				contentType : 'application/zip',
+				dataType : 'zip',
+				// data : JSON.stringify(payload),
+				success : function (response) {
+					console.log(response);
+				},
+				error : function (request,status,error) {
+					console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+				}
+			});
+		} catch (e) {
+			// TODO: handle exception
+			console.log('>>> ' +e);
+		}
+	};
+	
+	function downExcel() {
+		
+		var http = new XMLHttpRequest();
+		var url = downLoadUrl;
+		
+		http.open("POST", url, true);
+
+		//Send the proper header information along with the request
+		http.setRequestHeader("Content-type", "application/octet-stream");
+		
+		// response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		http.setRequestHeader("Content-Disposition", "attachment; filename='test.csv'");
+		
+		// http.responseType = "blob";
+
+		http.onreadystatechange = function() {//Call a function when the state changes.
+			if (http.readyState == 4 && http.status == 200) {
+				console.log(http.responseText);
+				location.href = http.responseText;
+			} else {
+				console.log('error ' + http.readyState + ' : ' + http.status);
+			}
+		}
+		http.send();
+	}
+	
+</script>
+</head>
+<body>
+	<IFRAME id="frmHidden" src="" width="0" height="0" scrolling="no" frameborder="0" ></IFRAME> <!-- onload="alert('Done')" onerror="alert('Failed')" -->
+
+	TEST<br/>
+	download(OK)<br/>
+        <input type="button" id="download" value="download" onclick="javascript:download()" /><br/>
+		
+		
+		
+		
+		
+	download2<br/>
+        <input type="button" id="download" value="download" onclick="javascript:f_sendPushMessage()" /><br/>
+	download3<br/>
+        <input type="button" id="download" value="download" onclick="javascript:downloadAsync()" /><br/>
+	download4<br/>
+        <input type="button" id="download4" value="download4" onclick="javascript:downExcel()" /><br/>
+</body>
+</html>

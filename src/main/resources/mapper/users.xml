@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="users">
+	<select id="userList" resultType="map">
+		select * from USERS
+	</select>
+
+	<select id="userInfoByEmail" parameterType="map" resultType="map">
+		select USERNO, USERID, PASSWORD /* sleep(5) */
+		from USERS
+		where USERID =
+		#{email}
+		<if test="password.equals('password')">
+			AND password LIKE #{password}
+		</if>
+	</select>
+
+	<select id="userInfoByPassword" parameterType="map" resultType="map">
+		select USERID, USERID, PASSWORD from NETTY_EXAMPLE_DB.USERS where
+		userNo = #{userNo} and password = #{password}
+	</select>
+
+	<insert id="insertAuthor">
+		insert into USERS (USERNO, USERID, PASSWORD,
+		USERNAME)
+		values (#{USERNO}, #{USERID}, #{PASSWORD}, #{USERNAME})
+	</insert>
+
+	<select id="sleepTest" resultType="map">
+		select sleep(10)
+	</select>
+
+	<select id="massiveOracleQuery" parameterType="map" resultType="map">
+		select * from (
+		select ROWNUM curRow, A.* from (
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		union all
+		select * from T_SEL_EXEC
+		) A
+		) A
+		where A.curRow BETWEEN #{startRow} AND #{endRow}
+		<if test="other != null">
+			and JOB_TIME = #{other}
+		</if>
+	</select>
+
+	<select id="massiveOracleQuery_iscLog" parameterType="map" resultType="map">
+		SELECT
+			RNUM,
+			LOG_DATE,
+			LOG_TIME,
+			LOG_DT,
+			CUST_NO,
+			LOG_SID,
+			ASSOCIATE_LOG_SID,
+			CALL_ID,
+			nvl(ETC1,'T') SEND_CD,
+			SEND_NUM,
+			RECV_NUM,
+			SEND_CONV_AREA,
+			SEND_CONV_CLASS,
+			SEND_CONV_NUM,
+			LDAP_KEY,
+			nvl((select etc1 ETC1 FROM
+			ISC_CODEBOOK WHERE CODE_TYPE ='COM005' AND ETC2= LDAP_NUM),
+			case when
+			send_num='021544120099' then 'M' else 'T' end) ladp_cd,
+			decode(LDAP_NUM,'021544120099','0215441200',LDAP_NUM) LDAP_NUM,
+			LDAP_TIME,
+			CONN_YN,
+			CONN_TIME
+		FROM (
+			SELECT A.*, ROWNUM RNUM FROM (
+				SELECT A.*
+					,B.ETC1
+				FROM ISC_LOG A
+					left outer join isc_codebook B on(A.send_num=B.etc2)
+				WHERE A.LOG_DT BETWEEN #{SDATE} AND #{EDATE}
+				
+				<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(PHONE_NUM)">
+					AND RECV_NUM = #{PHONE_NUM}
+				</if>
+				<if test="@org.apache.commons.lang3.StringUtils@isNotEmpty(CUST_NO)">
+					AND CUST_NO = #{CUST_NO}
+				</if>
+				
+				ORDER BY LOG_DATE DESC, LOG_TIME DESC
+			) A WHERE ROWNUM <![CDATA[<=]]> #{endRow}
+		) A WHERE A.RNUM <![CDATA[>=]]> #{startRow}
+	</select>
+</mapper>
