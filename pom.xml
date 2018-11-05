@@ -28,9 +28,15 @@
 
 	<repositories>
 		<!-- I had a hard time. For ojdbc14 repository -->
+
 		<repository>
-			<id>mesir-repo</id>
-			<url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>
+			<id>ojdbc-repo</id>
+			<url>https://mvnrepository.com/artifact/com.oracle/ojdbc7</url>
+		</repository>
+
+		<repository>
+			<id>ojdbc-repo2</id>
+			<url>https://mvnrepository.com/artifact/com.oracle/ojdbc8</url>
 		</repository>
 	</repositories>
 
@@ -61,6 +67,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-lang-js</artifactId>
+			<version>${vertx.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis</artifactId>
 			<version>${mybatis.version}</version>
@@ -76,13 +88,6 @@
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>${hsqldb.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc14</artifactId>
-			<version>${ojdbc14.version}</version>
-			<!-- <scope>system</scope> <systemPath>${basedir}/src/main/resources/lib/ojdbc14.jar</systemPath> -->
 		</dependency>
 
 		<dependency>
@@ -117,7 +122,27 @@
 			<version>${commonslang3.version}</version>
 		</dependency>
 
+		<!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId> 
+			<version>${ojdbc14.version}</version> </dependency> <dependency> <groupId>com.oracle</groupId> 
+			<artifactId>ojdbc7</artifactId> <version>12.1.0.2</version> </dependency> -->
 
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc8</artifactId>
+			<version>12.2.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.shyiko</groupId>
+			<artifactId>mysql-binlog-connector-java</artifactId>
+			<version>0.13.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.9.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

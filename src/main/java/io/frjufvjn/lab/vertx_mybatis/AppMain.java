@@ -11,8 +11,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Launcher;
@@ -33,7 +38,9 @@ public class AppMain
 	 */
 	public static void main( String[] args ) throws Exception
 	{
-
+		
+		// guavaCacheTest();
+        
 		// zipFileCreate();
 
 		// ansiEncoding();
@@ -47,13 +54,37 @@ public class AppMain
 				new String[]{
 						"io.frjufvjn.lab.vertx_mybatis.MainVerticle" // "io.frjufvjn.lab.vertx_mybatis.DatabaseVerticle"
 						, "-cp", "target/vertx-mybatis-1.0.0.jar" 
-						, "-instances", Integer.toString(NUMBER_OF_CPU)
+						// , "-instances", Integer.toString(NUMBER_OF_CPU)
 						// , "-ha"
 						// , "--worker"
 						// For hsqldb , "-Dtextdb.allow_full_path=true"
 						// , "--worker", "io.frjufvjn.lab.vertx_mybatis.MainVerticle"
 				});
 
+	}
+
+	private static void guavaCacheTest() throws InterruptedException {
+		
+		CacheLoader<String, String> cacheLoader =
+                new CacheLoader<String, String>() {
+                    @Override
+                    public String load(String key) throws Exception {
+                        System.out.println("make cache {"+key+"}");
+                        return key.toUpperCase();
+                    }
+                };
+
+        // 최대 3개까지 캐쉬를 유지하고, 500 밀리초 이후 갱신됨.
+        LoadingCache<String, String> cache =
+                CacheBuilder.newBuilder()
+                        .maximumSize(3)
+                        .expireAfterAccess(500, TimeUnit.MILLISECONDS)
+                        .build(cacheLoader);
+        
+        cache.put("aa", "111");
+        System.out.println(cache.asMap().toString());
+        Thread.sleep(400);
+        System.out.println(cache.asMap().toString());
 	}
 
 	/**

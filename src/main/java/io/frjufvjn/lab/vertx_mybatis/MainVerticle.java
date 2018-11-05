@@ -37,13 +37,16 @@ import io.vertx.core.eventbus.impl.MessageImpl;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.streams.Pump;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.sql.SQLRowStream;
 import io.vertx.ext.web.Route;
@@ -55,6 +58,7 @@ public class MainVerticle extends AbstractVerticle {
 	Logger logger = LoggerFactory.getLogger(MainVerticle.class);
 	private Injector queryService = null;
 	private Properties properties;
+	private ResultSet cacheResult = null;
 
 	@SuppressWarnings("static-access")
 	@Override
@@ -117,14 +121,16 @@ public class MainVerticle extends AbstractVerticle {
 		router.route(HttpMethod.GET, "/proxy/:userid/:fetchrow/:startdt/:enddt/:phone/:custno").handler(this::proxyMultiRequest);
 		router.route(HttpMethod.GET, "/proxy-test").handler(this::proxyMultiRequestTutorial);
 
+		router.route(HttpMethod.GET, "/jseb/:message").handler(this::jsEbTest);
+
 		svc.handler(this::dbSearchHandler);
 
 
 
-
+		router.route(HttpMethod.GET, "/select-test/:param1").handler(this::selectTest);
 
 		// [Test Case] sleep test
-		router.route(HttpMethod.GET, "/sleep/:svcnm/:idx").handler(this::mysqlSleepQueryTest);
+		router.route(HttpMethod.GET, "/sleep/:svcnm/:c1").handler(this::mysqlSleepQueryTest);
 
 		// [Test Case] download
 		router.route(HttpMethod.GET, "/download").handler(this::download);
@@ -138,13 +144,58 @@ public class MainVerticle extends AbstractVerticle {
 		router.route(HttpMethod.GET, "/stream").handler(this::queryStreamPoi);
 
 
-
+		LocalMap<String,JsonObject> sessions = vertx.sharedData().getLocalMap("ws.channel");
 
 		/**
-		 * @description Create HTTP Server
+		 * @description Create HTTP Server (RequestHandler & WebSocketHandler)
 		 */
+		final HttpServer httpServer = vertx.createHttpServer();
 		int httpServerPort = Integer.parseInt(properties.getProperty("HTTP_SERVER_PORT", "8080"));
-		vertx.createHttpServer().requestHandler(router::accept).listen(httpServerPort, res -> {
+
+		// RequestHandler
+		httpServer.requestHandler(router::accept);
+
+		// WebSocketHandler
+		httpServer.websocketHandler(ws -> {
+			ws.closeHandler(ch -> {
+				logger.info("Close Handler : " + ch);
+				sessions.remove(ws.textHandlerID());
+			});
+
+			ws.frameHandler(wsFrame -> {
+				logger.info("frameHandler's Remote Address : " + ws.remoteAddress().toString() + " id : " + ws.textHandlerID());
+
+				if (ws.path().equals("/channel")) {
+					if ( wsFrame.isText() ) {
+						logger.info(wsFrame.textData());
+
+						if ( !sessions.containsKey(ws.textHandlerID()) ) {
+							sessions.put(ws.textHandlerID(), new JsonObject(wsFrame.textData()));
+						}
+
+						ws.writeFinalTextFrame("Echo React");
+					}
+
+					if ( wsFrame.isClose() ) {
+						logger.info("close " + wsFrame.closeReason());
+					}
+				} else {
+					ws.reject();
+				}
+
+				EventBus eb = vertx.eventBus();
+				eb.consumer("msg.jsverticle", e -> {
+					String testHandlerID = e.body().toString();
+					vertx.eventBus().send(testHandlerID, "SERVER SENT...");
+				});
+			});
+
+			ws.exceptionHandler(t -> {
+				logger.error(t.getCause().getMessage());
+			});
+		});
+
+		httpServer.listen(httpServerPort, res -> {
 			if (res.failed()) {
 				// res.cause().printStackTrace();
 				startFuture.fail(res.cause());
@@ -168,6 +219,43 @@ public class MainVerticle extends AbstractVerticle {
 			}
 		});
 
+		
+		
+		/**
+		 * @description BinLogClientTestVerticle Deploy
+		 * */
+		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", f -> {
+			if ( f.succeeded() ) {
+				JsonObject opt = new JsonObject(f.result().getString(0, f.result().length(), "UTF-8"));
+
+				vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
+						new DeploymentOptions().setConfig(opt),
+						deploy -> {
+							if (deploy.succeeded()) {
+								logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
+							} else {
+								deploy.cause().printStackTrace();
+								vertx.close();
+							}
+						});
+			}
+		});
+
+
+
+
+		/**
+		 * @description jsVerticle.js Deploy
+		 * 	- fat.jar실행시, "src/main/js/jsVerticle.js"
+		 * */
+		//		 vertx.deployVerticle("src/main/js/jsVerticle.js", deploy -> {
+		//		 	if (deploy.succeeded()) {
+		//		 		logger.info("jsVerticle deploy successfully ID: " + deploy.result());
+		//		 	} else {
+		//		 		deploy.cause().printStackTrace();
+		//		 		vertx.close();
+		//		 	}
+		//		 });
 
 
 
@@ -187,7 +275,7 @@ public class MainVerticle extends AbstractVerticle {
 				if ( "030".equals(tm_ddk) || "033".equals(tm_ddk) ) {
 					logger.info(">> [Periodic Job] id:" + id + " ............");
 					logger.info("Temp File Delete : " + tm_ddk);
-					
+
 					String targetPath = properties.getProperty("EXPORT_TARGET_PATH", "");
 					File dirFile = new File(targetPath);
 					File[] fileList = dirFile.listFiles();
@@ -208,7 +296,21 @@ public class MainVerticle extends AbstractVerticle {
 				}
 			}
 		});
+	}
 
+
+	private void jsEbTest(RoutingContext ctx) {
+		HttpServerResponse response = ctx.response();
+
+		EventBus eb = vertx.eventBus();
+		String passMessage = ctx.request().getParam("message");
+
+		eb.send("msg.jsverticle.test", passMessage, reply -> {
+			if (reply.succeeded()) {
+				logger.info("received reply : " + reply.result().body());
+				response.end("jsVerticle Reply Message : [" + reply.result().body() + "]");
+			}
+		});
 	}
 
 
@@ -365,6 +467,27 @@ public class MainVerticle extends AbstractVerticle {
 	}
 
 
+	private void selectTest(RoutingContext ctx) {
+		HttpServerResponse response = ctx.response();
+		String query = "select * from test1 where c1 = ?";
+
+		VertxSqlConnectionFactory.getClient().queryWithParams(query, 
+				new JsonArray().add(Integer.valueOf(ctx.request().getParam("param1"))), res -> {
+					if ( res.succeeded() ) {
+
+						if ( this.cacheResult == null ) this.cacheResult = res.result();
+
+						if ( this.cacheResult.equals(res.result()) ) {
+							response.end("equal");
+						} else {
+							this.cacheResult = res.result();
+							response.end("not-equal");
+						}
+					}
+				});
+	}
+
+
 
 	/**
 	 * @description [Test Case]
@@ -379,6 +502,7 @@ public class MainVerticle extends AbstractVerticle {
 		String serviceName = ctx.request().getParam("svcnm");
 		Map<String, Object> reqData = new LinkedHashMap<String, Object>();
 		reqData.put("sqlName", serviceName);
+		reqData.put("c1", Integer.valueOf(ctx.request().getParam("c1")));
 
 		VertxSqlConnectionFactory.getClient().getConnection(conn -> {
 			if (conn.failed()) {
@@ -408,7 +532,7 @@ public class MainVerticle extends AbstractVerticle {
 
 				response.putHeader("Content-Type", "application/json");
 				response.setStatusCode(200);
-				response.end("END"); // res.result().getResults().toString() );
+				response.end(res.result().getResults().toString()); // res.result().getResults().toString() );
 			});
 
 			connection.close();
