@@ -26,8 +26,8 @@
 		values (#{USERNO}, #{USERID}, #{PASSWORD}, #{USERNAME})
 	</insert>
 
-	<select id="sleepTest" resultType="map">
-		select sleep(10)
+	<select id="sleepTest" parameterType="map" resultType="map">
+		select * from test1 where c1 = #{c1}
 	</select>
 
 	<select id="massiveOracleQuery" parameterType="map" resultType="map">

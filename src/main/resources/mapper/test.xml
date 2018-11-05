@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="test">
+
+	<sql id="including">
+		SELECT * FROM test1
+	</sql>
+
+	<select id="testsql01" parameterType="map" resultType="map">
+		/*test*/
+		<include refid="including" />
+		where c1 = #{c1}
+	</select>
+
+</mapper>

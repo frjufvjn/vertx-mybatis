@@ -13,8 +13,8 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class CryptoManager implements CryptoService {
 
-	private final String DBDATA_SEC_KEY = "1234567890123456";
-    private final String DBDATA_SEC_IV = "1234567890123456";
+	private final String DBDATA_SEC_KEY = "hoxp1FhC5uyIihkE";
+    private final String DBDATA_SEC_IV = "WW3nC0Vv7QifDjVi";
 	private final String DBDATA_SEC_ALGORITHM = "AES/CBC/PKCS5Padding";
 	private final String DBDATA_SEC_PREFIX = "{ENC}";
 	private final String DBDATA_SEC_CHARSET = "UTF-8";

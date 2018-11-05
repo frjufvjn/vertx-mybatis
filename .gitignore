@@ -16,3 +16,5 @@ buildNumber.properties
 /.vertx/
 /.vscode/
 /.setting/
+CryptoManager.java
+node_modules/

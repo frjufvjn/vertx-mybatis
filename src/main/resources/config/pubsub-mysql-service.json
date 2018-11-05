@@ -1,0 +1,12 @@
+[
+	{
+		"table-name": "test1",
+		"services": [
+			{
+				"id": "svc01",
+				"sql-id": "sql_search",
+				"filter-cols": ["c1","c2"]
+			}
+		]
+	}
+]
