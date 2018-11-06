@@ -1,0 +1,99 @@
+/*
+				 * ref : https://vertx.io/docs/vertx-core/java/#_json_parser
+				 * */
+				// 서비스 기준
+				//				[
+				//				    {
+				//				      "id": "svc01",
+				//				      "description": "service",
+				//				      "sql-id": "sql_search",
+				//				      "trigger-tables":[{"table-name":"test1","filter-cols":["c1","c2"]}]
+				//				    },
+				//				    {
+				//				      "id": "svc02",
+				//				      "description": "service",
+				//				      "sql-id": "sql_search2",
+				//				      "trigger-tables":[{"table-name":"test2","filter-cols":["c1","c2"]}]
+				//				    }
+				//				]
+
+				// 테이블 기준 
+				//				[
+				//				  {
+				//				    "table-name": "test1",
+				//				    "services": [
+				//				      {
+				//				        "id": "svc01",
+				//				        "sql-id": "sql_search",
+				//				        "filter-cols":["c1","c2"]
+				//				      }
+				//				    ]
+				//				  }
+				//				]
+package io.frjufvjn.lab.vertx_mybatis.mysqlBinlog;
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.shareddata.LocalMap;
+import io.vertx.ext.binlog.mysql.BinlogClient;
+import io.vertx.ext.binlog.mysql.BinlogClientOptions;
+
+/**
+ * @description Just Test Class
+ * @author PJW
+ *
+ */
+public class BinLogClientTestVerticle extends AbstractVerticle {
+
+	@Override
+	public void start(Future<Void> startFuture) throws Exception {
+		
+		LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
+		
+		/**
+		 * @description
+		 * 	subscription point : trigger table > filter for column , select SQL
+		 * */
+		BinlogClientOptions bco = new BinlogClientOptions();
+		bco.setHost("localhost");
+		bco.setPort(3306);
+		bco.setUsername("root");
+		bco.setPassword("password");
+
+		BinlogClient binlogClient = BinlogClient.create(vertx, bco);
+
+		binlogClient.connect((ar) -> {
+			if (ar.succeeded()) {
+				System.out.println("connected");
+
+				
+
+				vertx.fileSystem().readFile("config/pubsub-mysql-service.json", f -> {
+					if ( f.succeeded() ) {
+						pubsubServices.put("table", new JsonArray(f.result().getString(0, f.result().length(), "UTF-8")));
+					}
+				});
+			}
+		});
+
+		binlogClient.endHandler(end -> {
+			System.out.println("binlogClient end handler");
+		});
+
+		binlogClient.handler((event) -> {
+			// String type = event.getString("type");
+
+			System.out.println(event.toString());
+			pubsubServices.get("table").forEach(tableInfo -> {
+				String targetTable = ((JsonObject)tableInfo).getString("table-name"); // config에 등록된 테이블
+				if ( event.getString("table").equals(targetTable) ) {
+					((JsonObject)tableInfo).getJsonArray("services").forEach(svcInfo -> { // 트리거 테이블에 해당하는 서비스 정보
+						System.out.println("id:" + ((JsonObject)svcInfo).getString("id"));
+					});
+				}
+			});
+		});
+	}
+}
