@@ -11,5 +11,9 @@
 		<include refid="including" />
 		where c1 = #{c1}
 	</select>
+	
+	<select id="sql_mysql_live_01" parameterType="map" resultType="map">
+		select * from test1 limit 10
+	</select>
 
 </mapper>

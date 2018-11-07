@@ -71,30 +71,7 @@ public class MainVerticle extends AbstractVerticle {
 			properties.load(inputStream);
 		}
 
-		/**
-		 * @description
-		 * [기능 명세 체크]
-		 * - 1. 서버에 개발환경 세팅할 
-		 * 	- > 로컬레파지토리로 메이븐 pom.xml 별도 설정 - > java -jar xxx.fat.jar 로 실행가능하도록... 
-		 * 		: pom.xml에서 Launcher로 설정된 verticle을 이 클래스명으로 바꿔주기만 하면 되고 프로젝트 홈에서 
-		 * 		java -jar target/vertx-mybatis-1.0.0-fat.jar로 실행하면됨. 
-		 * - 2. 리팩토링
-		 * 	: mybatis injection 
-		 * - 3. 리팩토링 : properties 로 static한 정보 분리
-		 * - 4. 페이징 파라미터 추가 
-		 * - 5. 기존 스프링mvc controller에서 호출하기 resttemplete 사용, 의존성추가 없이 바로 사용 가능 요청 완료후 파일 삭제 
-		 * - 6. front 호출 작성 async await 
-		 * - skip 7. RONUM 단위의 partial response가 아닌 index를 활용할 수 있는 날짜시간기준으로 제공할 수 있는 옵션 
-		 * - 8. vertx sql client connection option 고려
-		 * 		https://vertx.io/docs/vertx-jdbc-client/java/#_configuration 
-		 * - 9. 데이터 암/복호화 함수 적용 
-		 * - 10. JUL Logger 설정
-		 * - 11. 혹시나 남아있는 임시파일 삭제 배치 적용 
-		 * - 12. 서버에 빌드 설정 : 
-		 * 		별도의 메이븐 디렉토리 패스를 잡기
-		 * 		별도의 로컬 레파지토리 구성 
-		 * 		build.sh & run.sh 작성 (run.sh은 start/stop/status/instances갯수 아규먼트 받아서 실행)
-		 */
+
 
 		final Router router = Router.router(vertx);
 		final Route svc = router.route(HttpMethod.GET, "/svc/:svcnm/:param1/:param2");
@@ -144,6 +121,7 @@ public class MainVerticle extends AbstractVerticle {
 		router.route(HttpMethod.GET, "/stream").handler(this::queryStreamPoi);
 
 
+
 		LocalMap<String,JsonObject> sessions = vertx.sharedData().getLocalMap("ws.channel");
 
 		/**
@@ -163,17 +141,28 @@ public class MainVerticle extends AbstractVerticle {
 			});
 
 			ws.frameHandler(wsFrame -> {
-				logger.info("frameHandler's Remote Address : " + ws.remoteAddress().toString() + " id : " + ws.textHandlerID());
+				if (logger.isDebugEnabled() ) logger.debug("frameHandler's Remote Address : " + ws.remoteAddress().toString() + " id : " + ws.textHandlerID());
 
 				if (ws.path().equals("/channel")) {
 					if ( wsFrame.isText() ) {
-						logger.info(wsFrame.textData());
+						if (logger.isDebugEnabled() ) logger.debug(wsFrame.textData());
+						JsonObject clientRegiMsg = new JsonObject(wsFrame.textData());
 
 						if ( !sessions.containsKey(ws.textHandlerID()) ) {
-							sessions.put(ws.textHandlerID(), new JsonObject(wsFrame.textData()));
-						}
+							LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
+							long chkSvcCount = pubsubServices.get("table").stream()
+									.filter(f -> clientRegiMsg.getString("service-name").equals(((JsonObject) f).getString("service-name")) )
+									.count();
 
-						ws.writeFinalTextFrame("Echo React");
+							if (chkSvcCount > 0) {
+								sessions.put(ws.textHandlerID(), clientRegiMsg);
+								ws.writeFinalTextFrame("Service Registration Success");
+							} else {
+								ws.writeFinalTextFrame("Request Service Not Available");
+								ws.reject();
+								logger.warn(ws.textHandlerID() + " is Rejected (Request Service Not Available)");
+							}
+						}
 					}
 
 					if ( wsFrame.isClose() ) {
@@ -188,31 +177,18 @@ public class MainVerticle extends AbstractVerticle {
 				logger.error(t.getCause().getMessage());
 			});
 		});
-
+		
+		// http listen
 		httpServer.listen(httpServerPort, res -> {
 			if (res.failed()) {
 				// res.cause().printStackTrace();
 				startFuture.fail(res.cause());
 			} else {
 				startFuture.complete();
-				logger.info("Server listening at: http://localhost:" + httpServerPort);
+				logger.info("Server listening at: http://localhost:{0}", Integer.toString(httpServerPort));
 			}
 		});
 
-		/**
-		 * @description MySQL BinLog Consumer & Client Send
-		 * */
-		EventBus eb = vertx.eventBus();
-		eb.consumer("msg.mysql.live.select", msg -> {
-			String testHandlerID = ((JsonObject) msg.body()).getString("user-key");
-			
-			vertx.eventBus().send(testHandlerID, ((JsonObject) msg.body()).getJsonArray("data").toString() , ar -> {
-				// msg.reply("success");
-			});
-
-		}).completionHandler(ar -> {
-			if (ar.succeeded()) System.out.println("complete");
-		});
 
 
 		/**
@@ -227,28 +203,53 @@ public class MainVerticle extends AbstractVerticle {
 			}
 		});
 
-		
-		
-		/**
-		 * @description BinLogClientTestVerticle Deploy
-		 * */
-		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", f -> {
-			if ( f.succeeded() ) {
-				JsonObject opt = new JsonObject(f.result().getString(0, f.result().length(), "UTF-8"));
 
-				vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
-						new DeploymentOptions().setConfig(opt),
-						deploy -> {
-							if (deploy.succeeded()) {
-								logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
-							} else {
-								deploy.cause().printStackTrace();
-								vertx.close();
-							}
-						});
+
+
+		/**
+		 * @description BinLogClientVerticle Deploy
+		 * */
+		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", f -> { // secret config read
+			if ( f.succeeded() ) {
+				vertx.fileSystem().readFile("config/pubsub-mysql-server.json", config -> { // server connection config read
+					if (config.succeeded()) {
+
+						JsonObject opt = new JsonObject(f.result().getString(0, f.result().length(), "UTF-8"));
+						opt.mergeIn(new JsonObject(config.result().getString(0, config.result().length(), "UTF-8")));
+
+						vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
+								new DeploymentOptions().setConfig(opt),
+								deploy -> {
+									if (deploy.succeeded()) {
+										logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
+									} else {
+										deploy.cause().printStackTrace();
+										vertx.close();
+									}
+								});
+					}
+				});
+			} else {
+				logger.warn("BinLogClientVerticle secret config read Failed !!!");
 			}
 		});
 
+
+
+		/**
+		 * @description MySQL BinLog Event Consumer & Client Send
+		 * */
+		EventBus eb = vertx.eventBus();
+		eb.consumer("msg.mysql.live.select", msg -> {
+			String testHandlerID = ((JsonObject) msg.body()).getString("user-key");
+
+			vertx.eventBus().send(testHandlerID, ((JsonObject) msg.body()).getString("data") , ar -> {
+				// msg.reply("success");
+			});
+
+		}).completionHandler(ar -> {
+			if (ar.succeeded()) logger.info("MySQL BinLog Consumer Ready Complete!!!");
+		});
 
 
 

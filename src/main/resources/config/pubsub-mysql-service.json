@@ -3,6 +3,6 @@
 		"service-name": "svc01",
 		"description": "Test 서비스",
 		"trigger-table": "test1",
-		"bind-sql-id": "sql_search"
+		"bind-sql-id": "sql_mysql_live_01"
 	}
 ]

@@ -23,6 +23,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 
+import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -70,11 +71,23 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		services.getInstance(SchemaInfo.class).loadSchemaData();
 
 
-
+		
+		vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SqlServiceVerticle", dep -> {
+			if (dep.succeeded()) {
+				logger.info("mysqlBinlog.SqlServiceVerticle deploy success");
+			}
+		});
+		
+		
+		
 		/**
 		 * @description bin-log client connect, listen
 		 * */
-		BinaryLogClient client = new BinaryLogClient("localhost", 3306, "root", config().getString("local-mysql-password"));
+		BinaryLogClient client = new BinaryLogClient(
+				config().getString("url"),
+				config().getInteger("port"),
+				config().getString("username"),
+				config().getString("local-mysql-password"));
 
 		client.registerEventListener(new EventListener() {
 			public void onEvent(Event evt) {
@@ -138,19 +151,28 @@ public class BinLogClientVerticle extends AbstractVerticle {
 			// Throttling by Transaction Row Range
 		case "xid" :
 			logger.info("- DML Transaction final result -");
-
+			
+			// List of registered services configuration
 			pubsubServices.get("table").forEach(svc -> {
 				long count = finalList.stream()
 						.filter(item -> ((JsonObject) svc).getString("trigger-table").equals(((JsonObject) item).getString("table")) )
 						.count();
 
 				if ( count > 0 ) {
-					logger.info("execute service : " + ((JsonObject) svc).getString("service-name") + ", 이때 sql실행 : [" + " 실행할 sql : " + ((JsonObject) svc).getString("service-name") + "]");
-					sessions.forEach((key,obj) -> {
-						if (obj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
-							logger.info("subscription 대상 유저 : " + key);
-							EventBus eb = vertx.eventBus();
-							eb.send("msg.mysql.live.select", new JsonObject().put("user-key", key).put("data", finalList));
+					String sqlName = ((JsonObject) svc).getString("bind-sql-id");
+					logger.info("execute service : " + ((JsonObject) svc).getString("service-name") 
+							+ ", 이때 sql실행 : [" + " 실행할 sql : " 
+							+ sqlName + "]");
+					
+					EventBus eb = vertx.eventBus();
+					eb.send("msg.mysql.live.select.getsql", sqlName, reply -> {
+						if (reply.succeeded()) {
+							sessions.forEach((key,obj) -> {
+								if (obj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
+									logger.info("subscription 대상 유저 : " + key);
+									eb.send("msg.mysql.live.select", new JsonObject().put("user-key", key).put("data", reply.result().body().toString()));
+								}
+							});
 						}
 					});
 				}

@@ -39,7 +39,7 @@ public class SchemaInfo {
 		return informationSchema.stream()
 				.filter(item 
 						-> schemaName.equals(item.getString("table_schema")) 
-							&& tableName.equals(item.getString("table_name")) )
+						&& tableName.equals(item.getString("table_name")) )
 				.collect(Collectors.toList());
 	}
 }

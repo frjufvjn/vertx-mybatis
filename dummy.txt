@@ -1,4 +1,4 @@
-/*
+				/*
 				 * ref : https://vertx.io/docs/vertx-core/java/#_json_parser
 				 * */
 				// 서비스 기준
@@ -30,70 +30,28 @@
 				//				    ]
 				//				  }
 				//				]
-package io.frjufvjn.lab.vertx_mybatis.mysqlBinlog;
-
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.shareddata.LocalMap;
-import io.vertx.ext.binlog.mysql.BinlogClient;
-import io.vertx.ext.binlog.mysql.BinlogClientOptions;
-
-/**
- * @description Just Test Class
- * @author PJW
- *
- */
-public class BinLogClientTestVerticle extends AbstractVerticle {
-
-	@Override
-	public void start(Future<Void> startFuture) throws Exception {
-		
-		LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
-		
+				
 		/**
 		 * @description
-		 * 	subscription point : trigger table > filter for column , select SQL
-		 * */
-		BinlogClientOptions bco = new BinlogClientOptions();
-		bco.setHost("localhost");
-		bco.setPort(3306);
-		bco.setUsername("root");
-		bco.setPassword("password");
-
-		BinlogClient binlogClient = BinlogClient.create(vertx, bco);
-
-		binlogClient.connect((ar) -> {
-			if (ar.succeeded()) {
-				System.out.println("connected");
-
-				
-
-				vertx.fileSystem().readFile("config/pubsub-mysql-service.json", f -> {
-					if ( f.succeeded() ) {
-						pubsubServices.put("table", new JsonArray(f.result().getString(0, f.result().length(), "UTF-8")));
-					}
-				});
-			}
-		});
-
-		binlogClient.endHandler(end -> {
-			System.out.println("binlogClient end handler");
-		});
-
-		binlogClient.handler((event) -> {
-			// String type = event.getString("type");
-
-			System.out.println(event.toString());
-			pubsubServices.get("table").forEach(tableInfo -> {
-				String targetTable = ((JsonObject)tableInfo).getString("table-name"); // config에 등록된 테이블
-				if ( event.getString("table").equals(targetTable) ) {
-					((JsonObject)tableInfo).getJsonArray("services").forEach(svcInfo -> { // 트리거 테이블에 해당하는 서비스 정보
-						System.out.println("id:" + ((JsonObject)svcInfo).getString("id"));
-					});
-				}
-			});
-		});
-	}
-}
+		 * [기능 명세 체크]
+		 * - 1. 서버에 개발환경 세팅할 
+		 * 	- > 로컬레파지토리로 메이븐 pom.xml 별도 설정 - > java -jar xxx.fat.jar 로 실행가능하도록... 
+		 * 		: pom.xml에서 Launcher로 설정된 verticle을 이 클래스명으로 바꿔주기만 하면 되고 프로젝트 홈에서 
+		 * 		java -jar target/vertx-mybatis-1.0.0-fat.jar로 실행하면됨. 
+		 * - 2. 리팩토링
+		 * 	: mybatis injection 
+		 * - 3. 리팩토링 : properties 로 static한 정보 분리
+		 * - 4. 페이징 파라미터 추가 
+		 * - 5. 기존 스프링mvc controller에서 호출하기 resttemplete 사용, 의존성추가 없이 바로 사용 가능 요청 완료후 파일 삭제 
+		 * - 6. front 호출 작성 async await 
+		 * - skip 7. RONUM 단위의 partial response가 아닌 index를 활용할 수 있는 날짜시간기준으로 제공할 수 있는 옵션 
+		 * - 8. vertx sql client connection option 고려
+		 * 		https://vertx.io/docs/vertx-jdbc-client/java/#_configuration 
+		 * - 9. 데이터 암/복호화 함수 적용 
+		 * - 10. JUL Logger 설정
+		 * - 11. 혹시나 남아있는 임시파일 삭제 배치 적용 
+		 * - 12. 서버에 빌드 설정 : 
+		 * 		별도의 메이븐 디렉토리 패스를 잡기
+		 * 		별도의 로컬 레파지토리 구성 
+		 * 		build.sh & run.sh 작성 (run.sh은 start/stop/status/instances갯수 아규먼트 받아서 실행)
+		 */
