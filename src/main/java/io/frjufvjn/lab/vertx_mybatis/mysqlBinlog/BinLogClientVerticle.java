@@ -64,11 +64,11 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		services = Guice.createInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
-				bind(SchemaInfo.class).in(Scopes.SINGLETON);
+				bind(SqlService.class).in(Scopes.SINGLETON);
 			}
 		});
 
-		services.getInstance(SchemaInfo.class).loadSchemaData();
+		services.getInstance(SqlService.class).loadSchemaData();
 
 
 		
@@ -144,7 +144,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 					sql.startsWith("ALTER TABLE")) {
 				if (logger.isDebugEnabled())
 					logger.debug("Handle DDL statement, clear column mapping");
-				services.getInstance(SchemaInfo.class).loadSchemaData();
+				services.getInstance(SqlService.class).loadSchemaData();
 			}
 			break;
 
@@ -216,7 +216,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @param fields
 	 */
 	private void handleRowEvent(String schema, String table, String type, List<Serializable> fields) {
-		List<JsonObject> columns = services.getInstance(SchemaInfo.class).filterByTable(schema, table);
+		List<JsonObject> columns = services.getInstance(SqlService.class).filterByTable(schema, table);
 
 		Map<String, Object> row = IntStream
 				.range(0, columns.size())

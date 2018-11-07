@@ -8,9 +8,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-public class SchemaInfo {
+public class SqlService {
 
-	Logger logger = LoggerFactory.getLogger(SchemaInfo.class);
+	Logger logger = LoggerFactory.getLogger(SqlService.class);
 	private List<JsonObject> informationSchema = null;
 
 	/**
@@ -39,7 +39,7 @@ public class SchemaInfo {
 		return informationSchema.stream()
 				.filter(item 
 						-> schemaName.equals(item.getString("table_schema")) 
-						&& tableName.equals(item.getString("table_name")) )
+							&& tableName.equals(item.getString("table_name")) )
 				.collect(Collectors.toList());
 	}
 }
