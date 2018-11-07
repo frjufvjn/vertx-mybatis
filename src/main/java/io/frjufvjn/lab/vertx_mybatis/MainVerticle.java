@@ -182,12 +182,6 @@ public class MainVerticle extends AbstractVerticle {
 				} else {
 					ws.reject();
 				}
-
-				EventBus eb = vertx.eventBus();
-				eb.consumer("msg.jsverticle", e -> {
-					String testHandlerID = e.body().toString();
-					vertx.eventBus().send(testHandlerID, "SERVER SENT...");
-				});
 			});
 
 			ws.exceptionHandler(t -> {
@@ -205,6 +199,20 @@ public class MainVerticle extends AbstractVerticle {
 			}
 		});
 
+		/**
+		 * @description MySQL BinLog Consumer & Client Send
+		 * */
+		EventBus eb = vertx.eventBus();
+		eb.consumer("msg.mysql.live.select", msg -> {
+			String testHandlerID = ((JsonObject) msg.body()).getString("user-key");
+			
+			vertx.eventBus().send(testHandlerID, ((JsonObject) msg.body()).getJsonArray("data").toString() , ar -> {
+				// msg.reply("success");
+			});
+
+		}).completionHandler(ar -> {
+			if (ar.succeeded()) System.out.println("complete");
+		});
 
 
 		/**

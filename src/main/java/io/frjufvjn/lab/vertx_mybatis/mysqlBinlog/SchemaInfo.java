@@ -16,7 +16,7 @@ public class SchemaInfo {
 	/**
 	 * @description Get Schema Data
 	 */
-	public void loadSchemaData() throws Exception {
+	public void loadSchemaData() {
 		String getSchemaSql = "SELECT table_schema, table_name, column_name "
 				+ "FROM information_schema.`COLUMNS` "
 				+ "WHERE table_schema = 'test'";
@@ -25,14 +25,16 @@ public class SchemaInfo {
 				if ( informationSchema != null ) informationSchema.clear();
 				informationSchema = ar.result().getRows();
 				logger.info("Get Schema Data Complete!!");
-
-				for (JsonObject jo : ar.result().getRows()) {
-					logger.debug(jo.encode());
-				}
 			}
 		});
 	}
 
+	/**
+	 * @description return filtered schema list by schemaName and tableName
+	 * @param schemaName
+	 * @param tableName
+	 * @return
+	 */
 	public List<JsonObject> filterByTable(String schemaName, String tableName) {
 		return informationSchema.stream()
 				.filter(item 

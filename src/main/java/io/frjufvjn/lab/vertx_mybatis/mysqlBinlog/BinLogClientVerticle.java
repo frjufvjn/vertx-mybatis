@@ -1,7 +1,6 @@
 package io.frjufvjn.lab.vertx_mybatis.mysqlBinlog;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +15,8 @@ import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
+import com.github.shyiko.mysql.binlog.event.QueryEventData;
+import com.github.shyiko.mysql.binlog.event.DeleteRowsEventData;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -24,6 +25,7 @@ import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -33,24 +35,31 @@ import io.vertx.core.shareddata.LocalMap;
 public class BinLogClientVerticle extends AbstractVerticle {
 
 	Logger logger = LoggerFactory.getLogger(BinLogClientVerticle.class);
-	private List<JsonObject> finalList = new ArrayList<JsonObject>();
+	private JsonArray finalList = new JsonArray();
 	private ConcurrentMap<String,String> tableMap = new ConcurrentHashMap<String,String>();
 	private Injector services = null;
+	LocalMap<String,JsonArray> pubsubServices = null;
+	LocalMap<String,JsonObject> sessions = null;
 
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
 
+		sessions = vertx.sharedData().getLocalMap("ws.channel");
+
 		/**
 		 * @description bin-log service config Read
 		 * */
-		LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
 		vertx.fileSystem().readFile("config/pubsub-mysql-service.json", f -> {
 			if ( f.succeeded() ) {
+				pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
 				pubsubServices.put("table", new JsonArray(f.result().getString(0, f.result().length(), "UTF-8")));
 				logger.info("bin-log service config Read Complete!!");
 			}
 		});
 
+		/**
+		 * @description MySQL information_schema data service
+		 * */
 		services = Guice.createInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -76,22 +85,29 @@ public class BinLogClientVerticle extends AbstractVerticle {
 							);
 				}
 
-				if ( EventType.TABLE_MAP == evt.getHeader().getEventType() ) {
+				if (EventType.TABLE_MAP == evt.getHeader().getEventType()) {
 					dispatch("tableMap", evt.getData());
 				}
 
-				if ( EventType.XID == evt.getHeader().getEventType() ) {
+				if (EventType.XID == evt.getHeader().getEventType()) {
 					dispatch("xid", null);
 				}
 
-				if ( EventType.isWrite(evt.getHeader().getEventType()) ) {
+				if (EventType.isWrite(evt.getHeader().getEventType())) {
 					dispatch("write", evt.getData());
 				}
 
-				if ( EventType.isUpdate(evt.getHeader().getEventType()) ) {
+				if (EventType.isUpdate(evt.getHeader().getEventType())) {
 					dispatch("update", evt.getData());
 				}
 
+				if (EventType.isDelete(evt.getHeader().getEventType())) {
+					dispatch("delete", evt.getData());
+				}
+
+				if (EventType.QUERY == evt.getHeader().getEventType()) {
+					dispatch("query", evt.getData());
+				}
 			}
 
 		});
@@ -103,20 +119,45 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @description Event Dispatcher
 	 * @param type
 	 * @param data
+	 * @throws Exception 
 	 */
 	private void dispatch(String type, Object data) {
 
 		switch (type) {
 		case "query" :
+			String sql = ((QueryEventData) data).getSql().toUpperCase().trim();
+			if (sql.startsWith("CREATE TABLE") ||
+					sql.startsWith("DROP TABLE") ||
+					sql.startsWith("ALTER TABLE")) {
+				if (logger.isDebugEnabled())
+					logger.debug("Handle DDL statement, clear column mapping");
+				services.getInstance(SchemaInfo.class).loadSchemaData();
+			}
 			break;
 
 			// Throttling by Transaction Row Range
 		case "xid" :
 			logger.info("- DML Transaction final result -");
-			for (JsonObject obj : finalList) {
-				logger.info(obj.encode());
-			}
+
+			pubsubServices.get("table").forEach(svc -> {
+				long count = finalList.stream()
+						.filter(item -> ((JsonObject) svc).getString("trigger-table").equals(((JsonObject) item).getString("table")) )
+						.count();
+
+				if ( count > 0 ) {
+					logger.info("execute service : " + ((JsonObject) svc).getString("service-name") + ", 이때 sql실행 : [" + " 실행할 sql : " + ((JsonObject) svc).getString("service-name") + "]");
+					sessions.forEach((key,obj) -> {
+						if (obj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
+							logger.info("subscription 대상 유저 : " + key);
+							EventBus eb = vertx.eventBus();
+							eb.send("msg.mysql.live.select", new JsonObject().put("user-key", key).put("data", finalList));
+						}
+					});
+				}
+			});
+
 			finalList.clear();
+
 			break;
 
 		case "tableMap" :
@@ -134,6 +175,12 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		case "update" :
 			((UpdateRowsEventData) data).getRows().forEach(row -> {
 				handleRowEvent(tableMap.get("schema"), tableMap.get("table"), type, Arrays.asList(row.getValue()));
+			});
+			break;
+
+		case "delete" :
+			((DeleteRowsEventData) data).getRows().forEach(row -> {
+				handleRowEvent(tableMap.get("schema"), tableMap.get("table"), type, Arrays.asList(row));
 			});
 			break;
 		}

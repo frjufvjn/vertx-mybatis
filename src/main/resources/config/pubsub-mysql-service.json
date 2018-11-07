@@ -1,12 +1,8 @@
 [
 	{
-		"table-name": "test1",
-		"services": [
-			{
-				"id": "svc01",
-				"sql-id": "sql_search",
-				"filter-cols": ["c1","c2"]
-			}
-		]
+		"service-name": "svc01",
+		"description": "Test 서비스",
+		"trigger-table": "test1",
+		"bind-sql-id": "sql_search"
 	}
 ]

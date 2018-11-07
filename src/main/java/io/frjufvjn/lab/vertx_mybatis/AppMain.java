@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -23,6 +25,7 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Launcher;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class AppMain 
 {
@@ -30,7 +33,7 @@ public class AppMain
 	 * 	Number of Machine's Core CPU
 	 */
 	private static final int NUMBER_OF_CPU = Runtime.getRuntime().availableProcessors();
-	
+
 	/**
 	 * @description Direct Execute Application in IDE Without CLI
 	 * @param args
@@ -38,9 +41,8 @@ public class AppMain
 	 */
 	public static void main( String[] args ) throws Exception
 	{
-		
 		// guavaCacheTest();
-        
+
 		// zipFileCreate();
 
 		// ansiEncoding();
@@ -60,31 +62,30 @@ public class AppMain
 						// For hsqldb , "-Dtextdb.allow_full_path=true"
 						// , "--worker", "io.frjufvjn.lab.vertx_mybatis.MainVerticle"
 				});
-
 	}
 
 	private static void guavaCacheTest() throws InterruptedException {
-		
-		CacheLoader<String, String> cacheLoader =
-                new CacheLoader<String, String>() {
-                    @Override
-                    public String load(String key) throws Exception {
-                        System.out.println("make cache {"+key+"}");
-                        return key.toUpperCase();
-                    }
-                };
 
-        // 최대 3개까지 캐쉬를 유지하고, 500 밀리초 이후 갱신됨.
-        LoadingCache<String, String> cache =
-                CacheBuilder.newBuilder()
-                        .maximumSize(3)
-                        .expireAfterAccess(500, TimeUnit.MILLISECONDS)
-                        .build(cacheLoader);
-        
-        cache.put("aa", "111");
-        System.out.println(cache.asMap().toString());
-        Thread.sleep(400);
-        System.out.println(cache.asMap().toString());
+		CacheLoader<String, String> cacheLoader =
+				new CacheLoader<String, String>() {
+			@Override
+			public String load(String key) throws Exception {
+				System.out.println("make cache {"+key+"}");
+				return key.toUpperCase();
+			}
+		};
+
+		// 최대 3개까지 캐쉬를 유지하고, 500 밀리초 이후 갱신됨.
+		LoadingCache<String, String> cache =
+				CacheBuilder.newBuilder()
+				.maximumSize(3)
+				.expireAfterAccess(500, TimeUnit.MILLISECONDS)
+				.build(cacheLoader);
+
+		cache.put("aa", "111");
+		System.out.println(cache.asMap().toString());
+		Thread.sleep(400);
+		System.out.println(cache.asMap().toString());
 	}
 
 	/**
@@ -114,7 +115,7 @@ public class AppMain
 	 */
 	@SuppressWarnings("unused")
 	private static void privateLibMigration() {
-		
+
 		/**
 		 * It is a clipboard string obtained by selecting and copying all the jar files listed 
 		 * in sts or Eclipse's "Package Explorer> Project> Maven Dependencies".
