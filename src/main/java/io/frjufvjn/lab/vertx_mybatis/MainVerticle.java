@@ -209,12 +209,12 @@ public class MainVerticle extends AbstractVerticle {
 		/**
 		 * @description BinLogClientVerticle Deploy
 		 * */
-		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", f -> { // secret config read
-			if ( f.succeeded() ) {
+		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", secConfig -> { // secret config read
+			if ( secConfig.succeeded() ) {
 				vertx.fileSystem().readFile("config/pubsub-mysql-server.json", config -> { // server connection config read
 					if (config.succeeded()) {
 
-						JsonObject opt = new JsonObject(f.result().getString(0, f.result().length(), "UTF-8"));
+						JsonObject opt = new JsonObject(secConfig.result().getString(0, secConfig.result().length(), "UTF-8"));
 						opt.mergeIn(new JsonObject(config.result().getString(0, config.result().length(), "UTF-8")));
 
 						vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 

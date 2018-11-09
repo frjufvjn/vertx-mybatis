@@ -11,9 +11,12 @@ import io.frjufvjn.lab.vertx_mybatis.query.QueryModule;
 import io.frjufvjn.lab.vertx_mybatis.query.QueryServices;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.sql.SQLConnection;
+import io.vertx.ext.sql.SQLRowStream;
 
 public class SqlServiceVerticle extends AbstractVerticle {
 	Logger logger = LoggerFactory.getLogger(SqlServiceVerticle.class);
@@ -34,10 +37,23 @@ public class SqlServiceVerticle extends AbstractVerticle {
 				reqData.put("sqlName", sqlName);
 				Map<String, Object> queryInfo = services.getInstance(QueryServices.class).getQuery(reqData);
 
+				/* NOTE : There is no Asynchronous effect and it is sequential. 
 				VertxSqlConnectionFactory.getClient().query((String)queryInfo.get("sql"), ar -> {
 					if (ar.succeeded()) {
 						msg.reply(ar.result().getRows().toString() );
 					}
+				});
+				 */
+				
+				// this method is Asynchronous even if there is a delay.
+				VertxSqlConnectionFactory.getClient().getConnection(conn -> {
+					if (conn.failed()) msg.reply("fail");
+					final SQLConnection connection = conn.result();
+					connection.query((String)queryInfo.get("sql"), ar -> {
+						if(ar.succeeded()) msg.reply(ar.result().getRows().toString() );
+						else msg.reply("fail");
+						connection.close();
+					});
 				});
 			} catch (Exception e) {
 				msg.reply("fail");

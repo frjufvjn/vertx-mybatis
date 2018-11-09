@@ -13,7 +13,7 @@
 	</select>
 	
 	<select id="sql_mysql_live_01" parameterType="map" resultType="map">
-		select * from test1 limit 10
+		select count(*) row_cnt, sleep(5) sleep from test1
 	</select>
 
 </mapper>

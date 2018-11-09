@@ -23,7 +23,6 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 
-import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -64,22 +63,22 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		services = Guice.createInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
-				bind(SqlService.class).in(Scopes.SINGLETON);
+				bind(SchemaService.class).in(Scopes.SINGLETON);
 			}
 		});
 
-		services.getInstance(SqlService.class).loadSchemaData();
+		services.getInstance(SchemaService.class).loadSchemaData();
 
 
-		
+
 		vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SqlServiceVerticle", dep -> {
 			if (dep.succeeded()) {
 				logger.info("mysqlBinlog.SqlServiceVerticle deploy success");
 			}
 		});
-		
-		
-		
+
+
+
 		/**
 		 * @description bin-log client connect, listen
 		 * */
@@ -132,7 +131,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @description Event Dispatcher
 	 * @param type
 	 * @param data
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void dispatch(String type, Object data) {
 
@@ -144,32 +143,39 @@ public class BinLogClientVerticle extends AbstractVerticle {
 					sql.startsWith("ALTER TABLE")) {
 				if (logger.isDebugEnabled())
 					logger.debug("Handle DDL statement, clear column mapping");
-				services.getInstance(SqlService.class).loadSchemaData();
+				services.getInstance(SchemaService.class).loadSchemaData();
 			}
 			break;
 
 			// Throttling by Transaction Row Range
 		case "xid" :
-			logger.info("- DML Transaction final result -");
-			
+			if (logger.isDebugEnabled()) logger.info("- DML Transaction final result -");
 			// List of registered services configuration
 			pubsubServices.get("table").forEach(svc -> {
 				long count = finalList.stream()
 						.filter(item -> ((JsonObject) svc).getString("trigger-table").equals(((JsonObject) item).getString("table")) )
 						.count();
 
-				if ( count > 0 ) {
+				if ( count > 0 && sessions.size() > 0) {
 					String sqlName = ((JsonObject) svc).getString("bind-sql-id");
-					logger.info("execute service : " + ((JsonObject) svc).getString("service-name") 
-							+ ", 이때 sql실행 : [" + " 실행할 sql : " 
-							+ sqlName + "]");
-					
+					if (logger.isDebugEnabled()) {
+						logger.info("execute service : " + ((JsonObject) svc).getString("service-name")
+								+ ", [" + " sql : "
+								+ sqlName + "]");
+					}
+
 					EventBus eb = vertx.eventBus();
+
+					// Execute Query with sql registered in service configuration.
 					eb.send("msg.mysql.live.select.getsql", sqlName, reply -> {
 						if (reply.succeeded()) {
-							sessions.forEach((key,obj) -> {
-								if (obj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
-									logger.info("subscription 대상 유저 : " + key);
+							// Send the query result to the client registered in websocket.
+							sessions.forEach((key,sessionObj) -> {
+								if (sessionObj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
+									if (sessionObj.containsKey("filter") ) {
+										// TODO
+									}
+									logger.info("send data, subscription key : " + key);
 									eb.send("msg.mysql.live.select", new JsonObject().put("user-key", key).put("data", reply.result().body().toString()));
 								}
 							});
@@ -216,7 +222,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @param fields
 	 */
 	private void handleRowEvent(String schema, String table, String type, List<Serializable> fields) {
-		List<JsonObject> columns = services.getInstance(SqlService.class).filterByTable(schema, table);
+		List<JsonObject> columns = services.getInstance(SchemaService.class).filterByTable(schema, table);
 
 		Map<String, Object> row = IntStream
 				.range(0, columns.size())

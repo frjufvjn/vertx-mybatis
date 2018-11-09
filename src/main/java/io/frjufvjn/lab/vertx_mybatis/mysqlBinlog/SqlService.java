@@ -7,7 +7,7 @@ import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
+@Deprecated
 public class SqlService {
 
 	Logger logger = LoggerFactory.getLogger(SqlService.class);
@@ -16,6 +16,7 @@ public class SqlService {
 	/**
 	 * @description Get Schema Data
 	 */
+	@Deprecated
 	public void loadSchemaData() {
 		String getSchemaSql = "SELECT table_schema, table_name, column_name "
 				+ "FROM information_schema.`COLUMNS` "
@@ -35,6 +36,7 @@ public class SqlService {
 	 * @param tableName
 	 * @return
 	 */
+	@Deprecated
 	public List<JsonObject> filterByTable(String schemaName, String tableName) {
 		return informationSchema.stream()
 				.filter(item 
