@@ -41,6 +41,40 @@ public class AppMain
 	 */
 	public static void main( String[] args ) throws Exception
 	{
+		/*
+		 * [
+		 * 		{"schema":"test","table":"test1","type":"write","row":{"c3":"aa","c1":11,"c2":1}},
+		 * 		{"schema":"test","table":"test1","type":"write","row":{"c3":"bb","c1":22,"c2":2}},
+		 * 		{"schema":"test","table":"test2","type":"write","row":{"col2":null,"col3":null,"c1":null,"col1":"xxq"}},
+		 * 		{"schema":"test","table":"test1","type":"write","row":{"c3":"cc","c1":33,"c2":3}}
+		 * ]
+		 * */
+//		JsonArray arr = new JsonArray();
+//		arr.add(new JsonObject().put("table", "test1").put("row", new JsonObject().put("c3", "aa").put("c1", "11") ));
+//		arr.add(new JsonObject().put("table", "test1").put("row", new JsonObject().put("c3", "bb").put("c1", "22") ));
+//		arr.add(new JsonObject().put("table", "test2").put("row", new JsonObject().put("col2", "").put("col1", "xxq") ));
+//		arr.add(new JsonObject().put("table", "test1").put("row", new JsonObject().put("c3", "cc").put("c1", "33") ));
+//		System.out.println(arr.encodePrettily() );
+//
+//		Map<String,JsonObject> sessions = new HashMap<String,JsonObject>();
+//		sessions.put("111", 
+//				new JsonObject().put("service-name", "svc01")
+//				.put("filter", 
+//						new JsonObject()
+//						.put("c1", new JsonArray().add("100").add("101"))
+//						.put("c2", new JsonArray().add("aa"))
+//						)
+//				);
+//		System.out.println(sessions.toString());
+//
+//		sessions.forEach((k,v) -> {
+//			if ( v.containsKey("filter") ) {
+//				v.getJsonObject("filter").fieldNames().forEach(userFilterCol -> {
+//					System.out.println(userFilterCol);
+//				});
+//			}
+//		});
+
 		// guavaCacheTest();
 
 		// zipFileCreate();
@@ -50,18 +84,18 @@ public class AppMain
 		// privateLibMigration();
 
 		// (1) --------------------------------------------------------------------------------------
-		Launcher.executeCommand("version", args);
-		Launcher.executeCommand(
-				"run", 
-				new String[]{
-						"io.frjufvjn.lab.vertx_mybatis.MainVerticle" // "io.frjufvjn.lab.vertx_mybatis.DatabaseVerticle"
-						, "-cp", "target/vertx-mybatis-1.0.0.jar" 
-						// , "-instances", Integer.toString(NUMBER_OF_CPU)
-						// , "-ha"
-						// , "--worker"
-						// For hsqldb , "-Dtextdb.allow_full_path=true"
-						// , "--worker", "io.frjufvjn.lab.vertx_mybatis.MainVerticle"
-				});
+				Launcher.executeCommand("version", args);
+				Launcher.executeCommand(
+						"run", 
+						new String[]{
+								"io.frjufvjn.lab.vertx_mybatis.MainVerticle" // "io.frjufvjn.lab.vertx_mybatis.DatabaseVerticle"
+								, "-cp", "target/vertx-mybatis-1.0.0.jar" 
+								// , "-instances", Integer.toString(NUMBER_OF_CPU)
+								// , "-ha"
+								// , "--worker"
+								// For hsqldb , "-Dtextdb.allow_full_path=true"
+								// , "--worker", "io.frjufvjn.lab.vertx_mybatis.MainVerticle"
+						});
 	}
 
 	private static void guavaCacheTest() throws InterruptedException {

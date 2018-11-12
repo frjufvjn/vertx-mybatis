@@ -60,11 +60,10 @@ public class MainVerticle extends AbstractVerticle {
 	private Properties properties;
 	private ResultSet cacheResult = null;
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
-
-		logger.info("hashCode : " + vertx.factory.context().hashCode());
+		
+		logger.info("hashCode : " + vertx.hashCode());
 
 		properties = new Properties();
 		try (InputStream inputStream = getClass().getResourceAsStream("/config/app.properties")) {

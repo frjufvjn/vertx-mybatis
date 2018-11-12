@@ -41,15 +41,20 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	LocalMap<String,JsonArray> pubsubServices = null;
 	LocalMap<String,JsonObject> sessions = null;
 
+	final private String BINLOG_SERVICE_CONFIG = "config/pubsub-mysql-service.json";
+	final private String BINLOG_SQL_VERTICLE = "io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SqlServiceVerticle";
+	final private String EB_MSG_KEY_SQL = "msg.mysql.live.select.getsql";
+	final private String EB_MSG_KEY_WS = "msg.mysql.live.select";
+
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
 
 		sessions = vertx.sharedData().getLocalMap("ws.channel");
 
 		/**
-		 * @description bin-log service config Read
+		 * @description bin-log service configuration Read
 		 * */
-		vertx.fileSystem().readFile("config/pubsub-mysql-service.json", f -> {
+		vertx.fileSystem().readFile(BINLOG_SERVICE_CONFIG, f -> {
 			if ( f.succeeded() ) {
 				pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
 				pubsubServices.put("table", new JsonArray(f.result().getString(0, f.result().length(), "UTF-8")));
@@ -71,7 +76,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 
 
 
-		vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SqlServiceVerticle", dep -> {
+		vertx.deployVerticle(BINLOG_SQL_VERTICLE, dep -> {
 			if (dep.succeeded()) {
 				logger.info("mysqlBinlog.SqlServiceVerticle deploy success");
 			}
@@ -88,40 +93,15 @@ public class BinLogClientVerticle extends AbstractVerticle {
 				config().getString("username"),
 				config().getString("local-mysql-password"));
 
-		client.registerEventListener(new EventListener() {
-			public void onEvent(Event evt) {
-				if ( logger.isDebugEnabled() ) {
-					logger.debug(" - evt type : " + evt.getHeader().getEventType()
-							+ "\n - HeaderInfo:[" + evt.getHeader().toString()
-							+ "]\n - DataInfo:[" + evt.getData().toString() + "]\n"
-							);
-				}
-
-				if (EventType.TABLE_MAP == evt.getHeader().getEventType()) {
-					dispatch("tableMap", evt.getData());
-				}
-
-				if (EventType.XID == evt.getHeader().getEventType()) {
-					dispatch("xid", null);
-				}
-
-				if (EventType.isWrite(evt.getHeader().getEventType())) {
-					dispatch("write", evt.getData());
-				}
-
-				if (EventType.isUpdate(evt.getHeader().getEventType())) {
-					dispatch("update", evt.getData());
-				}
-
-				if (EventType.isDelete(evt.getHeader().getEventType())) {
-					dispatch("delete", evt.getData());
-				}
-
-				if (EventType.QUERY == evt.getHeader().getEventType()) {
-					dispatch("query", evt.getData());
-				}
+		client.registerEventListener(evt -> {
+			if ( logger.isDebugEnabled() ) {
+				logger.debug(" - evt type : " + evt.getHeader().getEventType()
+						+ "\n - HeaderInfo:[" + evt.getHeader().toString()
+						+ "]\n - DataInfo:[" + evt.getData().toString() + "]\n"
+						);
 			}
 
+			dispatch(evt.getHeader().getEventType(), evt.getData());
 		});
 
 		client.connect(1000);
@@ -133,23 +113,24 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @param data
 	 * @throws Exception
 	 */
-	private void dispatch(String type, Object data) {
+	private void dispatch(EventType type, Object data) {
 
-		switch (type) {
-		case "query" :
+		switch (BinlogEventType.getEvtType(type)) {
+		case QUERY :
 			String sql = ((QueryEventData) data).getSql().toUpperCase().trim();
 			if (sql.startsWith("CREATE TABLE") ||
 					sql.startsWith("DROP TABLE") ||
-					sql.startsWith("ALTER TABLE")) {
-				if (logger.isDebugEnabled())
-					logger.debug("Handle DDL statement, clear column mapping");
+					sql.startsWith("ALTER TABLE"))
+			{
+				logger.info("Handle DDL statement, clear column mapping");
 				services.getInstance(SchemaService.class).loadSchemaData();
 			}
 			break;
 
 			// Throttling by Transaction Row Range
-		case "xid" :
-			if (logger.isDebugEnabled()) logger.info("- DML Transaction final result -");
+		case XID :
+			logger.info("- DML Transaction final result -");
+
 			// List of registered services configuration
 			pubsubServices.get("table").forEach(svc -> {
 				long count = finalList.stream()
@@ -167,49 +148,47 @@ public class BinLogClientVerticle extends AbstractVerticle {
 					EventBus eb = vertx.eventBus();
 
 					// Execute Query with sql registered in service configuration.
-					eb.send("msg.mysql.live.select.getsql", sqlName, reply -> {
+					eb.send(EB_MSG_KEY_SQL, sqlName, reply -> {
 						if (reply.succeeded()) {
 							// Send the query result to the client registered in websocket.
 							sessions.forEach((key,sessionObj) -> {
 								if (sessionObj.getValue("service-name").equals(((JsonObject) svc).getString("service-name"))) {
-									if (sessionObj.containsKey("filter") ) {
-										// TODO
-									}
 									logger.info("send data, subscription key : " + key);
-									eb.send("msg.mysql.live.select", new JsonObject().put("user-key", key).put("data", reply.result().body().toString()));
+									eb.send(EB_MSG_KEY_WS, new JsonObject().put("user-key", key).put("data", reply.result().body().toString()));
 								}
 							});
 						}
+
+						finalList.clear();
 					});
 				}
 			});
-
-			finalList.clear();
-
 			break;
 
-		case "tableMap" :
+		case TABLE_MAP :
 			tableMap.clear();
 			tableMap.put("schema", ((TableMapEventData) data).getDatabase());
 			tableMap.put("table", ((TableMapEventData) data).getTable());
 			break;
 
-		case "write" :
+		case WRITE :
 			((WriteRowsEventData) data).getRows().forEach(row -> {
 				handleRowEvent(tableMap.get("schema"), tableMap.get("table"), type, Arrays.asList(row));
 			});
 			break;
 
-		case "update" :
+		case UPDATE :
 			((UpdateRowsEventData) data).getRows().forEach(row -> {
 				handleRowEvent(tableMap.get("schema"), tableMap.get("table"), type, Arrays.asList(row.getValue()));
 			});
 			break;
 
-		case "delete" :
+		case DELETE :
 			((DeleteRowsEventData) data).getRows().forEach(row -> {
 				handleRowEvent(tableMap.get("schema"), tableMap.get("table"), type, Arrays.asList(row));
 			});
+			break;
+		default:
 			break;
 		}
 	}
@@ -221,7 +200,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	 * @param type
 	 * @param fields
 	 */
-	private void handleRowEvent(String schema, String table, String type, List<Serializable> fields) {
+	private void handleRowEvent(String schema, String table, EventType type, List<Serializable> fields) {
 		List<JsonObject> columns = services.getInstance(SchemaService.class).filterByTable(schema, table);
 
 		Map<String, Object> row = IntStream
@@ -234,7 +213,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		finalList.add(new JsonObject()
 				.put("schema", schema)
 				.put("table", table)
-				.put("type", type)
+				.put("type", BinlogEventType.getEvtType(type).getEvtName())
 				.put("row", new JsonObject(row)));
 	}
 }

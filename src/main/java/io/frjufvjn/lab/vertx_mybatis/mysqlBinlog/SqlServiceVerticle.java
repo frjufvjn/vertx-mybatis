@@ -44,8 +44,8 @@ public class SqlServiceVerticle extends AbstractVerticle {
 					}
 				});
 				 */
-				
-				// this method is Asynchronous even if there is a delay.
+
+				// this method is Asynchronous way even if there is a delay.
 				VertxSqlConnectionFactory.getClient().getConnection(conn -> {
 					if (conn.failed()) msg.reply("fail");
 					final SQLConnection connection = conn.result();
