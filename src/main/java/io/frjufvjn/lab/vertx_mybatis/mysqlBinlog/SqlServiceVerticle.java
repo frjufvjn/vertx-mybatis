@@ -11,12 +11,10 @@ import io.frjufvjn.lab.vertx_mybatis.query.QueryModule;
 import io.frjufvjn.lab.vertx_mybatis.query.QueryServices;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
-import io.vertx.ext.sql.SQLRowStream;
 
 public class SqlServiceVerticle extends AbstractVerticle {
 	Logger logger = LoggerFactory.getLogger(SqlServiceVerticle.class);

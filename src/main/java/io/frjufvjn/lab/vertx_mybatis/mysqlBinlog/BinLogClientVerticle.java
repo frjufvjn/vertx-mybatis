@@ -10,8 +10,6 @@ import java.util.stream.IntStream;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
-import com.github.shyiko.mysql.binlog.BinaryLogClient.EventListener;
-import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
@@ -49,7 +47,12 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
 
+		/**
+		 * @description User Session Map From Websocket
+		 * */
 		sessions = vertx.sharedData().getLocalMap("ws.channel");
+
+
 
 		/**
 		 * @description bin-log service configuration Read
@@ -62,6 +65,8 @@ public class BinLogClientVerticle extends AbstractVerticle {
 			}
 		});
 
+
+
 		/**
 		 * @description MySQL information_schema data service
 		 * */
@@ -72,10 +77,13 @@ public class BinLogClientVerticle extends AbstractVerticle {
 			}
 		});
 
-		services.getInstance(SchemaService.class).loadSchemaData();
+		services.getInstance(SchemaService.class).loadSchemaData(config().getString("schema"));
 
 
 
+		/**
+		 * @description Deploy Binlog SQL Verticle
+		 * */
 		vertx.deployVerticle(BINLOG_SQL_VERTICLE, dep -> {
 			if (dep.succeeded()) {
 				logger.info("mysqlBinlog.SqlServiceVerticle deploy success");
@@ -90,6 +98,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		BinaryLogClient client = new BinaryLogClient(
 				config().getString("url"),
 				config().getInteger("port"),
+				config().getString("schema"),
 				config().getString("username"),
 				config().getString("local-mysql-password"));
 
@@ -123,7 +132,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 					sql.startsWith("ALTER TABLE"))
 			{
 				logger.info("Handle DDL statement, clear column mapping");
-				services.getInstance(SchemaService.class).loadSchemaData();
+				services.getInstance(SchemaService.class).loadSchemaData(config().getString("schema"));
 			}
 			break;
 
@@ -140,7 +149,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 				if ( count > 0 && sessions.size() > 0) {
 					String sqlName = ((JsonObject) svc).getString("bind-sql-id");
 					if (logger.isDebugEnabled()) {
-						logger.info("execute service : " + ((JsonObject) svc).getString("service-name")
+						logger.debug("execute service : " + ((JsonObject) svc).getString("service-name")
 								+ ", [" + " sql : "
 								+ sqlName + "]");
 					}

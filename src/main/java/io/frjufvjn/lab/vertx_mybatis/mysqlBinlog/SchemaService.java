@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
+import io.netty.util.internal.StringUtil;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -14,11 +15,13 @@ public class SchemaService {
 
 	/**
 	 * @description Get Schema Data
+	 * @param schema
 	 */
-	public void loadSchemaData() {
+	public void loadSchemaData(String schema) {
 		String getSchemaSql = "SELECT table_schema, table_name, column_name "
 				+ "FROM information_schema.`COLUMNS` "
-				+ "WHERE table_schema = 'test'";
+				+ (StringUtil.isNullOrEmpty(schema) ? "" : "WHERE table_schema = '"+schema+"' ")
+				;
 		VertxSqlConnectionFactory.getClient().query(getSchemaSql, ar -> {
 			if (ar.succeeded()) {
 				if ( informationSchema != null ) informationSchema.clear();
@@ -38,7 +41,7 @@ public class SchemaService {
 		return informationSchema.stream()
 				.filter(item 
 						-> schemaName.equals(item.getString("table_schema")) 
-							&& tableName.equals(item.getString("table_name")) )
+						&& tableName.equals(item.getString("table_name")) )
 				.collect(Collectors.toList());
 	}
 }

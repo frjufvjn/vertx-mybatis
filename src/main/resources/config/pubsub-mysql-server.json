@@ -2,5 +2,6 @@
     "url":"localhost",
     "port":3306,
     "connection-timeout":1000,
-    "username":"root"
+    "username":"root",
+    "schema":"test"
 }

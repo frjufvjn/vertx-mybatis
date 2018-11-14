@@ -62,7 +62,7 @@ public class MainVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
-		
+
 		logger.info("hashCode : " + vertx.hashCode());
 
 		properties = new Properties();
@@ -176,7 +176,7 @@ public class MainVerticle extends AbstractVerticle {
 				logger.error(t.getCause().getMessage());
 			});
 		});
-		
+
 		// http listen
 		httpServer.listen(httpServerPort, res -> {
 			if (res.failed()) {
