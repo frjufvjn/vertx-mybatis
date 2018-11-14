@@ -208,16 +208,16 @@ public class MainVerticle extends AbstractVerticle {
 		/**
 		 * @description BinLogClientVerticle Deploy
 		 * */
-		vertx.fileSystem().readFile("C:/workspace_spring/common-secreet-data/mysql-local.json", secConfig -> { // secret config read
-			if ( secConfig.succeeded() ) {
-				vertx.fileSystem().readFile("config/pubsub-mysql-server.json", config -> { // server connection config read
-					if (config.succeeded()) {
-
-						JsonObject opt = new JsonObject(secConfig.result().getString(0, secConfig.result().length(), "UTF-8"));
-						opt.mergeIn(new JsonObject(config.result().getString(0, config.result().length(), "UTF-8")));
+		vertx.fileSystem().readFile("config/pubsub-mysql-server.json", ar -> { // server connection config read
+			if (ar.succeeded()) {
+				JsonObject config = new JsonObject(ar.result().getString(0, ar.result().length(), "UTF-8"));
+				vertx.fileSystem().readFile(config.getString("password-config-path"), secConfig -> { // secret config read
+					if ( secConfig.succeeded() ) {
+						JsonObject secOpt = new JsonObject(secConfig.result().getString(0, secConfig.result().length(), "UTF-8"));
+						config.mergeIn(secOpt);
 
 						vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
-								new DeploymentOptions().setConfig(opt),
+								new DeploymentOptions().setConfig(config),
 								deploy -> {
 									if (deploy.succeeded()) {
 										logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
@@ -226,14 +226,12 @@ public class MainVerticle extends AbstractVerticle {
 										vertx.close();
 									}
 								});
+					} else {
+						logger.warn("BinLogClientVerticle secret config read Failed !!!");
 					}
 				});
-			} else {
-				logger.warn("BinLogClientVerticle secret config read Failed !!!");
 			}
 		});
-
-
 
 		/**
 		 * @description MySQL BinLog Event Consumer & Client Send

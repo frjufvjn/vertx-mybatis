@@ -3,5 +3,6 @@
     "port":3306,
     "connection-timeout":1000,
     "username":"root",
-    "schema":"test"
+    "schema":"test",
+    "password-config-path":"C:/workspace_spring/common-secreet-data/mysql-local.json"
 }

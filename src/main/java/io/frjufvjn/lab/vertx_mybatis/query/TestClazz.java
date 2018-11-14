@@ -25,7 +25,6 @@ public class TestClazz implements Interceptor {
 
 	@Override  
 	public Object intercept(Invocation invocation) throws Throwable {  
-		// TODO Auto-generated method stub  
 		StatementHandler handler = (StatementHandler)invocation.getTarget();  
 
 		BoundSql boundSql = handler.getBoundSql();  
@@ -100,13 +99,11 @@ public class TestClazz implements Interceptor {
 
 	@Override  
 	public Object plugin(Object target) {  
-		// TODO Auto-generated method stub  
 		return Plugin.wrap(target, this);  
 	}  
 
 	@Override  
 	public void setProperties(Properties properties) {  
-		// TODO Auto-generated method stub  
 
 	}  
 

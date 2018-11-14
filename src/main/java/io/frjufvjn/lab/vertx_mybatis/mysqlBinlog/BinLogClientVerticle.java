@@ -167,7 +167,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 								}
 							});
 						}
-
+						// TODO Refactoring >> Under any circumstances, clear must be executed. !!!
 						finalList.clear();
 					});
 				}
