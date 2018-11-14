@@ -34,6 +34,18 @@ for ( ParameterMapping mapping : paramMapping ) {
 ### Usecase
 #### Goal
 Provides boilerplate for developers to create sql only and make it easy to access api server easily.
+#### Realtime changed data Pub/Sub feature (WIP)
+##### MySQL
+Use [mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
+& Inspired by [vertx-mysql-binlog-client](https://github.com/guoyu511/vertx-mysql-binlog-client)
+
+Thanks!!
+
+Unlike the [vertx-mysql-binlog-client](https://github.com/guoyu511/vertx-mysql-binlog-client), however, it does not release row-level events, but instead emit events in TR range.
+
+[related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/BinLogClientVerticle.java)
+
+##### PostgreSQL (WIP)
 #### Large DB data csv export
 _Recently, we had to add a large Excel download to an existing web application that had a lot of side effects when adding services._
 1. Invoke the REST API with parameters including the number of patches to the legacy application (Spring framework), assuming 50,000 data requests. [Go Code](./client-test/RestFulController.java#L135)
@@ -51,9 +63,9 @@ _Recently, we had to add a large Excel download to an existing web application t
     * [SubVerticle.java](./src/main/java/io/frjufvjn/lab/vertx_mybatis/SubVerticle.java)
 
 ![title](/img/vertx-mybatis.png)
-#### [WIP] CRUD template
-#### [WIP] Transaction template
-#### [WIP] Realtime changed data Pub/Sub feature
+#### CRUD template (TODO)
+#### Transaction template (TODO)
+
 ### Codes View
 ```java
 public void main () {
