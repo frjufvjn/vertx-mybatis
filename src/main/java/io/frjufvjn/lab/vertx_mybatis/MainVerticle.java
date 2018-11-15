@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -41,7 +43,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.Log4j2LogDelegateFactory;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.streams.Pump;
@@ -55,7 +57,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public class MainVerticle extends AbstractVerticle {
 
-	Logger logger = LoggerFactory.getLogger(MainVerticle.class);
+	private final Logger logger = LogManager.getLogger(MainVerticle.class);
 	private Injector queryService = null;
 	private Properties properties;
 	private ResultSet cacheResult = null;
@@ -63,7 +65,10 @@ public class MainVerticle extends AbstractVerticle {
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
 
-		logger.info("hashCode : " + vertx.hashCode());
+		// log4j2 delegate
+		System.setProperty("vertx.logger-delegate-factory-class-name", Log4j2LogDelegateFactory.class.getName());
+
+		logger.info("hashCode : {}", vertx.hashCode());
 
 		properties = new Properties();
 		try (InputStream inputStream = getClass().getResourceAsStream("/config/app.properties")) {
@@ -140,7 +145,7 @@ public class MainVerticle extends AbstractVerticle {
 			});
 
 			ws.frameHandler(wsFrame -> {
-				if (logger.isDebugEnabled() ) logger.debug("frameHandler's Remote Address : " + ws.remoteAddress().toString() + " id : " + ws.textHandlerID());
+				if (logger.isDebugEnabled() ) logger.debug("frameHandler's Remote Address : {}, id : {}", ws.remoteAddress().toString(), ws.textHandlerID());
 
 				if (ws.path().equals("/channel")) {
 					if ( wsFrame.isText() ) {
@@ -184,7 +189,7 @@ public class MainVerticle extends AbstractVerticle {
 				startFuture.fail(res.cause());
 			} else {
 				startFuture.complete();
-				logger.info("Server listening at: http://localhost:{0}", Integer.toString(httpServerPort));
+				logger.info("Server listening at: http://localhost:{}", httpServerPort);
 			}
 		});
 

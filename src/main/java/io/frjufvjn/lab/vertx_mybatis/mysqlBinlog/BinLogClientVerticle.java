@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.IntStream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
@@ -26,13 +30,11 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.shareddata.LocalMap;
 
 public class BinLogClientVerticle extends AbstractVerticle {
 
-	Logger logger = LoggerFactory.getLogger(BinLogClientVerticle.class);
+	private final Logger logger = LogManager.getLogger(BinLogClientVerticle.class);
 	private JsonArray finalList = new JsonArray();
 	private ConcurrentMap<String,String> tableMap = new ConcurrentHashMap<String,String>();
 	private Injector services = null;
@@ -104,10 +106,8 @@ public class BinLogClientVerticle extends AbstractVerticle {
 
 		client.registerEventListener(evt -> {
 			if ( logger.isDebugEnabled() ) {
-				logger.debug(" - evt type : " + evt.getHeader().getEventType()
-						+ "\n - HeaderInfo:[" + evt.getHeader().toString()
-						+ "]\n - DataInfo:[" + evt.getData().toString() + "]\n"
-						);
+				logger.debug("\n- evt type : {}\n- HeaderInfo:[{}]\n- DataInfo:[{}]\n", 
+						evt.getHeader().getEventType(), evt.getHeader().toString(), evt.getData().toString());
 			}
 
 			dispatch(evt.getHeader().getEventType(), evt.getData());
@@ -149,9 +149,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 				if ( count > 0 && sessions.size() > 0) {
 					String sqlName = ((JsonObject) svc).getString("bind-sql-id");
 					if (logger.isDebugEnabled()) {
-						logger.debug("execute service : " + ((JsonObject) svc).getString("service-name")
-								+ ", [" + " sql : "
-								+ sqlName + "]");
+						logger.debug("execute service : {}, sql : {}", ((JsonObject) svc).getString("service-name"), sqlName);
 					}
 
 					EventBus eb = vertx.eventBus();

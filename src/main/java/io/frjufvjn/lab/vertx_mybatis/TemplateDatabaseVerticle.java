@@ -3,6 +3,9 @@ package io.frjufvjn.lab.vertx_mybatis;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -14,8 +17,6 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
@@ -23,7 +24,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public class TemplateDatabaseVerticle extends AbstractVerticle {
 
-	Logger logger = LoggerFactory.getLogger(TemplateDatabaseVerticle.class);
+	private final Logger logger = LogManager.getLogger(TemplateDatabaseVerticle.class);
 	private int HTTP_SERVER_PORT = 8080;
 	private Injector injector = null;
 

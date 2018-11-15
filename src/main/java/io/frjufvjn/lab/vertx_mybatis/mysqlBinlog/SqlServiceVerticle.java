@@ -3,6 +3,9 @@ package io.frjufvjn.lab.vertx_mybatis.mysqlBinlog;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -12,12 +15,10 @@ import io.frjufvjn.lab.vertx_mybatis.query.QueryServices;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
 
 public class SqlServiceVerticle extends AbstractVerticle {
-	Logger logger = LoggerFactory.getLogger(SqlServiceVerticle.class);
+	private final Logger logger = LogManager.getLogger(SqlServiceVerticle.class);
 	private String messageConsumerAddr = "msg.mysql.live.select.getsql";
 	private Injector services = null;
 

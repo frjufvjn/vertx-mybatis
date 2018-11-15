@@ -17,6 +17,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -26,6 +29,8 @@ import io.vertx.core.Launcher;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Log4j2LogDelegateFactory;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.jdbc.JDBCClient;
 
 public class AppMain 
@@ -34,7 +39,7 @@ public class AppMain
 	 * 	Number of Machine's Core CPU
 	 */
 	private static final int NUMBER_OF_CPU = Runtime.getRuntime().availableProcessors();
-
+	private static final Logger logger = LogManager.getLogger(AppMain.class);
 	/**
 	 * @description Direct Execute Application in IDE Without CLI
 	 * @param args
@@ -85,6 +90,7 @@ public class AppMain
 		// privateLibMigration();
 
 		// (1) --------------------------------------------------------------------------------------
+		System.setProperty("vertx.logger-delegate-factory-class-name", Log4j2LogDelegateFactory.class.getName());
 				Launcher.executeCommand("version", args);
 				Launcher.executeCommand(
 						"run", 

@@ -3,14 +3,15 @@ package io.frjufvjn.lab.vertx_mybatis.mysqlBinlog;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.netty.util.internal.StringUtil;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 public class SchemaService {
-	Logger logger = LoggerFactory.getLogger(SchemaService.class);
+	private final Logger logger = LogManager.getLogger(SchemaService.class);
 	private List<JsonObject> informationSchema = null;
 
 	/**

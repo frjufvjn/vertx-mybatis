@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
+
+	<Appenders>
+		<RollingFile name="FILE">
+			<FileName>./logs/vertx.log</FileName>
+			<FilePattern>./log/%d{yyyy-MM-dd-hh}-%i.log.zip</FilePattern>
+			<PatternLayout>
+				<!-- <Pattern>%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n</Pattern> -->
+				<Pattern>%-5p %d{yyyy-MM-dd HH:mm:ss} [%t] %C{2} (%F:%L) - %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<!-- <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n" /> -->
+			<PatternLayout pattern="%-5p %d{yyyy-MM-dd HH:mm:ss} [%t] %C{2} (%F:%L) - %m%n" />
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<!-- <Logger name="com.memorynotfound" level="debug" /> -->
+
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE" />
+		</Root>
+	</Loggers>
+
+</Configuration>

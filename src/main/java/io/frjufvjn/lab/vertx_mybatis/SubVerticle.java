@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -22,15 +25,13 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.sql.SQLRowStream;
 
 public class SubVerticle extends AbstractVerticle {
 
-	Logger logger = LoggerFactory.getLogger(SubVerticle.class);
+	private final Logger logger = LogManager.getLogger(SubVerticle.class);
 	private final String messageConsumerAddr = "req.multi.service";
 	private final String messageReplyTag = "res.multi.service";
 	private final String messageDelimeter = "!";
