@@ -60,8 +60,7 @@ public class SubVerticle extends AbstractVerticle {
 		EventBus eb = vertx.eventBus();
 
 		eb.consumer(messageConsumerAddr, msg -> {
-			@SuppressWarnings("static-access")
-			int thisHash = vertx.factory.context().hashCode();
+			int thisHash = vertx.getOrCreateContext().hashCode();
 			logger.info("hashCode : " + thisHash + ":" + msg.body().toString() );
 
 			Map<String, Object> reqData = new LinkedHashMap<String, Object>(); // 순서주의 !!!

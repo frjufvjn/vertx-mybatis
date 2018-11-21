@@ -41,10 +41,10 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Log4j2LogDelegateFactory;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.streams.Pump;
 import io.vertx.ext.jdbc.JDBCClient;
@@ -61,6 +61,7 @@ public class MainVerticle extends AbstractVerticle {
 	private Injector queryService = null;
 	private Properties properties;
 	private ResultSet cacheResult = null;
+	private LocalMap<String,JsonObject> wsSessions = null;
 
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
@@ -126,61 +127,18 @@ public class MainVerticle extends AbstractVerticle {
 
 
 
-		LocalMap<String,JsonObject> sessions = vertx.sharedData().getLocalMap("ws.channel");
-
 		/**
 		 * @description Create HTTP Server (RequestHandler & WebSocketHandler)
 		 */
 		final HttpServer httpServer = vertx.createHttpServer();
 		int httpServerPort = Integer.parseInt(properties.getProperty("HTTP_SERVER_PORT", "8080"));
+		wsSessions = vertx.sharedData().getLocalMap("ws.channel");
 
 		// RequestHandler
 		httpServer.requestHandler(router::accept);
 
 		// WebSocketHandler
-		httpServer.websocketHandler(ws -> {
-			ws.closeHandler(ch -> {
-				logger.info("Close Handler : " + ch);
-				sessions.remove(ws.textHandlerID());
-			});
-
-			ws.frameHandler(wsFrame -> {
-				if (logger.isDebugEnabled() ) logger.debug("frameHandler's Remote Address : {}, id : {}", ws.remoteAddress().toString(), ws.textHandlerID());
-
-				if (ws.path().equals("/channel")) {
-					if ( wsFrame.isText() ) {
-						if (logger.isDebugEnabled() ) logger.debug(wsFrame.textData());
-						JsonObject clientRegiMsg = new JsonObject(wsFrame.textData());
-
-						if ( !sessions.containsKey(ws.textHandlerID()) ) {
-							LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
-							long chkSvcCount = pubsubServices.get("table").stream()
-									.filter(f -> clientRegiMsg.getString("service-name").equals(((JsonObject) f).getString("service-name")) )
-									.count();
-
-							if (chkSvcCount > 0) {
-								sessions.put(ws.textHandlerID(), clientRegiMsg);
-								ws.writeFinalTextFrame("Service Registration Success");
-							} else {
-								ws.writeFinalTextFrame("Request Service Not Available");
-								ws.reject();
-								logger.warn(ws.textHandlerID() + " is Rejected (Request Service Not Available)");
-							}
-						}
-					}
-
-					if ( wsFrame.isClose() ) {
-						logger.info("close " + wsFrame.closeReason());
-					}
-				} else {
-					ws.reject();
-				}
-			});
-
-			ws.exceptionHandler(t -> {
-				logger.error(t.getCause().getMessage());
-			});
-		});
+		httpServer.websocketHandler(this::wsHandler);
 
 		// http listen
 		httpServer.listen(httpServerPort, res -> {
@@ -245,7 +203,7 @@ public class MainVerticle extends AbstractVerticle {
 		eb.consumer("msg.mysql.live.select", msg -> {
 			String testHandlerID = ((JsonObject) msg.body()).getString("user-key");
 
-			vertx.eventBus().send(testHandlerID, ((JsonObject) msg.body()).getString("data") , ar -> {
+			eb.send(testHandlerID, ((JsonObject) msg.body()).getString("data") , ar -> {
 				// msg.reply("success");
 			});
 
@@ -309,6 +267,57 @@ public class MainVerticle extends AbstractVerticle {
 		});
 	}
 
+
+
+	/**
+	 * @description Websocket Handler
+	 * @param ws
+	 */
+	private void wsHandler(ServerWebSocket ws) {
+
+		ws.closeHandler(ch -> {
+			logger.info("Close Handler event, remove wsSession map...");
+			wsSessions.remove(ws.textHandlerID());
+		});
+
+		ws.frameHandler(wsFrame -> {
+			if (logger.isDebugEnabled() ) logger.debug("frameHandler's Remote Address : {}, id : {}", ws.remoteAddress().toString(), ws.textHandlerID());
+
+			if (ws.path().equals("/channel")) {
+				if ( wsFrame.isText() ) {
+					if (logger.isDebugEnabled() ) logger.debug(wsFrame.textData());
+					JsonObject clientRegiMsg = new JsonObject(wsFrame.textData());
+
+					if ( !wsSessions.containsKey(ws.textHandlerID()) ) {
+						LocalMap<String,JsonArray> pubsubServices = vertx.sharedData().getLocalMap("ws.pubsubServices");
+						long chkSvcCount = pubsubServices.get("table").stream()
+								.filter(f -> clientRegiMsg.getString("service-name").equals(((JsonObject) f).getString("service-name")) )
+								.count();
+
+						if (chkSvcCount > 0) {
+							wsSessions.put(ws.textHandlerID(), clientRegiMsg);
+							ws.writeFinalTextFrame("Service Registration Success");
+						} else {
+							ws.writeFinalTextFrame("Request Service Not Available");
+							ws.reject();
+							logger.warn("{} is Rejected (Request Service Not Available)", ws.textHandlerID());
+						}
+					}
+				}
+
+				if ( wsFrame.isClose() ) {
+					logger.info("event close frame " + wsFrame.closeReason());
+				}
+			} else {
+				ws.reject();
+			}
+		});
+
+		ws.exceptionHandler(t -> {
+			logger.error(t.getCause().getMessage());
+		});
+
+	}
 
 	private void jsEbTest(RoutingContext ctx) {
 		HttpServerResponse response = ctx.response();
