@@ -54,6 +54,7 @@ import io.vertx.ext.sql.SQLRowStream;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.StaticHandler;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -95,7 +96,7 @@ public class MainVerticle extends AbstractVerticle {
 
 
 
-
+		router.route().handler(staticHandler());
 		/**
 		 * @description Multi Async Request Proxy
 		 * 	<li> test url : http://localhost:18080/proxy
@@ -268,7 +269,14 @@ public class MainVerticle extends AbstractVerticle {
 	}
 
 
-
+	
+	private StaticHandler staticHandler() {
+        return StaticHandler.create()
+            .setCachingEnabled(false);
+    }
+	
+	
+	
 	/**
 	 * @description Websocket Handler
 	 * @param ws

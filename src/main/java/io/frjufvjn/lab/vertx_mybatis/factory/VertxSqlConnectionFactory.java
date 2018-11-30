@@ -28,6 +28,7 @@ public class VertxSqlConnectionFactory {
 					.put("password", prop.getProperty("db.password"))
 					.put("max_idle_time", Integer.parseInt(prop.getProperty("db.max_idle_time")))
 					.put("min_pool_size", Integer.parseInt(prop.getProperty("db.min_pool_size")))
+					.put("acquire_retry_attempts", Integer.parseInt(prop.getProperty("db.acquire_retry_attempts")))
 					);
 		} catch (IOException e) {
 			e.printStackTrace();
