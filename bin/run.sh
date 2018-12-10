@@ -10,11 +10,12 @@ VERSION=1.0.0 # MODIFIABLE
 APP_NAME="[CSV DB Data Export Server]" # MODIFIABLE
 AUTHOR="jwpark7@hansol.com"
 VERTX_INSTANCES=4 # MODIFIABLE
+JMX_PORT=8991 # MODIFIABLE
 
 SERVER_IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
 
 JVM_OPTION="-server -Xmx512m -Xms256m -XX:MaxMetaspaceSize=128m -XX:MetaspaceSize=64m"  #"-server -Xms512m -Xmx1024m" # MODIFIABLE jdk1.8 not use : {-XX:PermSize=256m -XX:MaxPermSize=256m}
-JMX_OPTION="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8991 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=$SERVER_IP"
+JMX_OPTION="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JMX_PORT -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=$SERVER_IP"
 
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'

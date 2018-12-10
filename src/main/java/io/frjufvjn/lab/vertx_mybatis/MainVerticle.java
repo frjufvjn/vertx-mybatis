@@ -175,25 +175,28 @@ public class MainVerticle extends AbstractVerticle {
 		vertx.fileSystem().readFile("config/pubsub-mysql-server.json", ar -> { // server connection config read
 			if (ar.succeeded()) {
 				JsonObject config = new JsonObject(ar.result().getString(0, ar.result().length(), "UTF-8"));
-				vertx.fileSystem().readFile(config.getString("password-config-path"), secConfig -> { // secret config read
-					if ( secConfig.succeeded() ) {
-						JsonObject secOpt = new JsonObject(secConfig.result().getString(0, secConfig.result().length(), "UTF-8"));
-						config.mergeIn(secOpt);
+				logger.info("use-binlog : {}", config.getBoolean("use-binlog"));
+				if (config.getBoolean("use-binlog")) {
+					vertx.fileSystem().readFile(config.getString("password-config-path"), secConfig -> { // secret config read
+						if ( secConfig.succeeded() ) {
+							JsonObject secOpt = new JsonObject(secConfig.result().getString(0, secConfig.result().length(), "UTF-8"));
+							config.mergeIn(secOpt);
 
-						vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
-								new DeploymentOptions().setConfig(config),
-								deploy -> {
-									if (deploy.succeeded()) {
-										logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
-									} else {
-										deploy.cause().printStackTrace();
-										vertx.close();
-									}
-								});
-					} else {
-						logger.warn("BinLogClientVerticle secret config read Failed !!!");
-					}
-				});
+							vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.BinLogClientVerticle", 
+									new DeploymentOptions().setConfig(config),
+									deploy -> {
+										if (deploy.succeeded()) {
+											logger.info("BinLogClientTestVerticle deploy successfully ID: " + deploy.result());
+										} else {
+											deploy.cause().printStackTrace();
+											vertx.close();
+										}
+									});
+						} else {
+							logger.warn("BinLogClientVerticle secret config read Failed !!!");
+						}
+					});
+				}
 			}
 		});
 
@@ -419,6 +422,7 @@ public class MainVerticle extends AbstractVerticle {
 				// All succeeded
 			} else {
 				// All completed and at least one failed
+				logger.error(ar.cause().getMessage());
 			}
 
 			response.end(resultSet.toString());
