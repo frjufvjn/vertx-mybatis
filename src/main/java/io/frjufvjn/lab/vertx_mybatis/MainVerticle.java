@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.frjufvjn.lab.vertx_mybatis.common.ApiSqlCommon;
+import io.frjufvjn.lab.vertx_mybatis.common.ApiServiceCommon;
 import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
@@ -43,7 +43,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
-public class MainVerticle extends ApiSqlCommon {
+public class MainVerticle extends ApiServiceCommon {
 
 	private final Logger logger = LogManager.getLogger(MainVerticle.class);
 	private Properties properties;

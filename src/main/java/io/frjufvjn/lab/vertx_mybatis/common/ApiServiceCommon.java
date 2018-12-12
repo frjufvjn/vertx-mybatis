@@ -10,7 +10,7 @@ import io.frjufvjn.lab.vertx_mybatis.sql.SqlServices;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.RoutingContext;
 
-public abstract class ApiSqlCommon extends AbstractVerticle {
+public abstract class ApiServiceCommon extends AbstractVerticle {
 
 	/**
 	 * @description SQL Service DI injection
@@ -20,7 +20,7 @@ public abstract class ApiSqlCommon extends AbstractVerticle {
 	/**
 	 * @description ApiSqlCommon's Constructor
 	 */
-	public ApiSqlCommon() {
+	public ApiServiceCommon() {
 		super();
 		sqlService = Guice.createInjector(new AbstractModule() {
 			@Override
