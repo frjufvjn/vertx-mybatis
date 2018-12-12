@@ -1,4 +1,4 @@
-package io.frjufvjn.lab.vertx_mybatis.query;
+package io.frjufvjn.lab.vertx_mybatis.dummy;
 
 import java.lang.reflect.Field;
 import java.sql.Statement;  

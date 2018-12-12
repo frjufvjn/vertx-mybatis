@@ -1,0 +1,209 @@
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>POM Admin Test</h1>
+
+<br>
+<br>
+
+<div id="login">
+    <a href="#" id="generateToken">Get a Token (username:kkkkkk / password:123qwe!@#)</a>
+    <div id="token">Current token:</div>
+</div>
+
+<br>
+<br>
+
+<div id="test">
+    <a href="#" id="getProtected">Get Protected Resource</a>
+    <div id="protected"></div>
+</div>
+
+<div id="read">
+	<a href="#" id="readtest">Read Test</a>
+</div>
+
+<div id="create">
+	<a href="#" id="createtest">Create Test</a>
+</div>
+
+<div id="update">
+	<a href="#" id="updatetest">Update Test</a>
+</div>
+
+<div id="delete">
+	<a href="#" id="deletetest">Delete Test</a>
+</div>
+<br/><br/><br/>
+<form onsubmit="return false;">
+	<input type="text" name="message" value="" /><input
+		type="button" value="Send Web Socket Data"
+		onclick="send(this.form.message.value)" />
+	<h3>Output</h3>
+	<textarea id="responseText" style="width: 500px; height: 300px;"></textarea>
+</form>
+<script src="./sha256.js" type="text/javascript" charset="UTF-8"></script>
+<script type="text/javascript" charset="UTF-8">
+
+    $(document).ready(function () {
+        $('#generateToken').on('click', function () {
+            /*$.ajax({
+                url: '/api/newToken',
+                type: 'GET',
+                dataType: 'text',
+                success: function (text) {
+                	console.log(text);
+                    $('#token').html('Current Token: ' + text);
+                }
+            });*/
+
+            var payload = {
+            		username: 'kkkkkk',
+            		password: SHA256("123qwe!@#")
+            };
+            var url = location.protocol.concat("//", location.host, "/api/newToken");
+
+    		var xhr = new XMLHttpRequest();
+
+    		xhr.open("POST", url, true);
+    		xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    		xhr.responseType = "text";
+    		xhr.onload = function(event) {
+    			if (xhr.status == 200) {
+    				$('#token').html('Current Token: ' + xhr.response);
+    			} else {
+    				console.log(event);
+    			}
+    		}
+
+    		xhr.send(JSON.stringify(payload));
+
+        });
+        $('#getProtected').on('click', function () {
+            $.ajax({
+                url: '/api/protected',
+                type: 'POST',
+                dataType: 'text',
+                headers: {
+                    "Authorization": "Bearer " + $('#token').html().substring(15)
+                },
+                success: function (text) {
+                    $('#protected').html(text);
+                },
+                error: function (err) {
+                    $('#protected').html('Error: ' + err.toString());
+                }
+            });
+        });
+
+        $('#readtest').on('click', function () {
+        	var payload = {
+				username: 'kkkkkk'
+    		};
+
+        	$.ajax({
+        		url: '/api/read',
+        		type: 'POST',
+        		dataType: 'text',
+        		contentType: 'application/json; charset=utf8',
+        		data: JSON.stringify(payload),
+        		headers: {
+                    "Authorization": "Bearer " + $('#token').html().substring(15)
+                },
+                success: function (text) {
+                    console.log(text);
+                },
+                error: function (err) {
+                	var contentType = err.getResponseHeader("content-type");
+                	console.log('contentType : ' + contentType);
+                    console.log('Error: ' + err.toString());
+                    console.log(JSON.parse(err.responseText).error);
+                }
+        	});
+        });
+        // createtest
+        $('#createtest').on('click', function () {
+        	
+    		var payload = {
+    				sqlName : 'sql_insert_test',
+    				data1 : 'aa',
+    				data2 : 'bb'
+        		};
+
+        	$.ajax({
+        		url: '/api/create',
+        		type: 'POST',
+        		dataType: 'text',
+        		contentType: 'application/json; charset=utf8',
+        		data: JSON.stringify(payload),
+        		headers: {
+                    "Authorization": "Bearer " + $('#token').html().substring(15)
+                },
+                success: function (text) {
+                    console.log(text);
+                },
+                error: function (err) {
+                    console.log('Error: ' + err.toString());
+                }
+        	});
+        });
+        
+     	// update test
+        $('#updatetest').on('click', function () {
+        	
+    		var payload = {
+    				sqlName : 'sql_update_test',
+    				data1 : 'aa',
+    				data2 : 'xxx'
+        		};
+
+        	$.ajax({
+        		url: '/api/update',
+        		type: 'POST',
+        		dataType: 'text',
+        		contentType: 'application/json; charset=utf8',
+        		data: JSON.stringify(payload),
+        		headers: {
+                    "Authorization": "Bearer " + $('#token').html().substring(15)
+                },
+                success: function (text) {
+                    console.log(text);
+                },
+                error: function (err) {
+                    console.log('Error: ' + err.toString());
+                }
+        	});
+        });
+     	
+     	// delete test
+        $('#deletetest').on('click', function () {
+        	
+    		var payload = {
+    				sqlName : 'sql_delete_test',
+    				data1 : 'aa2',
+        		};
+
+        	$.ajax({
+        		url: '/api/delete',
+        		type: 'POST',
+        		dataType: 'text',
+        		contentType: 'application/json; charset=utf8',
+        		data: JSON.stringify(payload),
+        		headers: {
+                    "Authorization": "Bearer " + $('#token').html().substring(15)
+                },
+                success: function (text) {
+                    console.log(text);
+                },
+                error: function (err) {
+                    console.log('Error: ' + err.toString());
+                }
+        	});
+        });
+    });
+</script>
+</body>
+</html>

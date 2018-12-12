@@ -1,9 +1,9 @@
 {
 	"use-binlog":false,
-    "url":"localhost",
+    "url":"10.1.12.231",
     "port":3306,
     "connection-timeout":1000,
-    "username":"root",
-    "schema":"test",
+    "username":"stat",
+    "schema":"stat_db",
     "password-config-path":"C:/workspace_spring/common-secreet-data/mysql-local.json"
 }

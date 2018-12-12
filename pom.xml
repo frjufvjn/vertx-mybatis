@@ -71,6 +71,12 @@
 			<artifactId>vertx-lang-js</artifactId>
 			<version>${vertx.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-auth-jwt</artifactId>
+			<version>${vertx.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.mybatis</groupId>

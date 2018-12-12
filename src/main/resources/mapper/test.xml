@@ -15,5 +15,19 @@
 	<select id="sql_mysql_live_01" parameterType="map" resultType="map">
 		select count(*) row_cnt from test1
 	</select>
-
+	
+	<insert id="sql_insert_test" parameterType="map">
+		insert into tb_test (data1, data2, data3) 
+		values (#{data1}, #{data2}, #{data3})
+	</insert>
+	
+	<update id="sql_update_test" parameterType="map">
+		UPDATE tb_test
+			SET data2 = #{data2}
+		WHERE data1 = #{data1}
+	</update>
+	
+	<delete id="sql_delete_test" parameterType="map">
+		DELETE FROM tb_test WHERE data1 = #{data1}
+	</delete>
 </mapper>

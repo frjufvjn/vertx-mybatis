@@ -18,3 +18,4 @@ buildNumber.properties
 /.setting/
 CryptoManager.java
 node_modules/
+keystore.jceks
