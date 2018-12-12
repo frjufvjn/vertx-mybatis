@@ -1,5 +1,4 @@
 <factorypath>
-    <factorypathentry kind="VARJAR" id="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/vertx/vertx-core/3.5.4/vertx-core-3.5.4.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/netty-common/4.1.19.Final/netty-common-4.1.19.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/netty-buffer/4.1.19.Final/netty-buffer-4.1.19.Final.jar" enabled="true" runInBatchMode="false"/>
@@ -24,6 +23,8 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/com/mchange/c3p0/0.9.5.2/c3p0-0.9.5.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/mchange/mchange-commons-java/0.2.11/mchange-commons-java-0.2.11.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/vertx/vertx-lang-js/3.5.4/vertx-lang-js-3.5.4.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/vertx/vertx-auth-jwt/3.5.4/vertx-auth-jwt-3.5.4.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/vertx/vertx-jwt/3.5.4/vertx-jwt-3.5.4.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/mybatis/mybatis/3.3.0/mybatis-3.3.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/mysql/mysql-connector-java/5.1.25/mysql-connector-java-5.1.25.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/hsqldb/hsqldb/2.3.4/hsqldb-2.3.4.jar" enabled="true" runInBatchMode="false"/>
@@ -38,11 +39,9 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/org/jasypt/jasypt-spring3/1.9.2/jasypt-spring3-1.9.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/jasypt/jasypt/1.9.2/jasypt-1.9.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/oracle/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/github/shyiko/mysql-binlog-connector-java/0.13.0/mysql-binlog-connector-java-0.13.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-slf4j-impl/2.9.1/log4j-slf4j-impl-2.9.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-api/2.9.1/log4j-api-2.9.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-core/2.9.1/log4j-core-2.9.1.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="PLUGIN" id="org.eclipse.jst.ws.annotations.core" enabled="true" runInBatchMode="false"/>
 </factorypath>

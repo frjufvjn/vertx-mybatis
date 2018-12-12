@@ -108,34 +108,10 @@
 			<version>${guice.version}</version>
 		</dependency>
 
-		<!-- 복호화 용도 -->
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>${bcprov.version}</version>
-		</dependency>
-
-		<!-- 복호화 용도 -->
-		<dependency>
-			<groupId>org.jasypt</groupId>
-			<artifactId>jasypt-spring3</artifactId>
-			<version>${jasypt.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commonslang3.version}</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId> 
-			<version>${ojdbc14.version}</version> </dependency> <dependency> <groupId>com.oracle</groupId> 
-			<artifactId>ojdbc7</artifactId> <version>12.1.0.2</version> </dependency> -->
-
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc8</artifactId>
-			<version>12.2.0.1</version>
 		</dependency>
 
 		<dependency>

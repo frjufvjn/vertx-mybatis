@@ -184,25 +184,32 @@ public class MainVerticle extends ApiServiceCommon {
 			String password = ctx.getBodyAsJson().getString("password");
 
 			VertxSqlConnectionFactory.getClient().getConnection(conn -> {
-				if (conn.failed()) ctx.response().end("fail");
+				if (conn.failed()) {
+					ctx.response().setStatusCode(500)
+					.putHeader("content-type", "application/json")
+					.end(new JsonObject().put("error", conn.cause().getMessage()).encodePrettily());
+				}
+
 				try ( final SQLConnection connection = conn.result() ) {
 					connection.queryWithParams("SELECT password FROM cs_usermaster where user_id = ?", new JsonArray().add(username), ar -> {
 						if(ar.succeeded()) {
 							String resPasswd = ar.result().getRows().get(0).getString("password");
 							if ( password.equals(resPasswd) ) {
-								ctx.response().putHeader("Content-Type", "text/plain");
-								ctx.response().end(jwtProvider.generateToken(
+								ctx.response().putHeader("Content-Type", "text/plain")
+								.end(jwtProvider.generateToken(
 										new JsonObject(),
 										new JWTOptions()
 										.setExpiresInSeconds(120)
 										));
 							} else {
-								ctx.response().putHeader("Content-Type", "text/plain");
-								ctx.response().setStatusCode(401);
-								ctx.response().end("Unauthorized");
+								ctx.response().setStatusCode(401)
+								.putHeader("content-type", "application/json")
+								.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
 							}
 						} else {
-							ctx.response().end("fail");
+							ctx.response().setStatusCode(500)
+							.putHeader("content-type", "application/json")
+							.end(new JsonObject().put("error", ar.cause().getMessage()).encodePrettily());
 						}
 					});
 				}

@@ -8,12 +8,14 @@
 
 <br>
 <br>
-
+<form id="loginForm" onsubmit="return false;">
+	<input type="text" name="username" value="tester" />
+	<input type="password" name="passwd" value="123qwe!@#" />
+	<input type="button" value="Sign In" onclick="signIn(this.form.username.value, this.form.passwd.value)" />
+</form>
 <div id="login">
-    <a href="#" id="generateToken">Get a Token (username:kkkkkk / password:123qwe!@#)</a>
     <div id="token">Current token:</div>
 </div>
-
 <br>
 <br>
 
@@ -47,8 +49,31 @@
 </form>
 <script src="./sha256.js" type="text/javascript" charset="UTF-8"></script>
 <script type="text/javascript" charset="UTF-8">
+	function signIn(argUsername, argPasswd) {
+		var payload = {
+        		username: argUsername,
+        		password: SHA256(argPasswd)
+        };
+        var url = location.protocol.concat("//", location.host, "/api/newToken");
 
+		var xhr = new XMLHttpRequest();
+
+		xhr.open("POST", url, true);
+		xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+		xhr.responseType = "text";
+		xhr.onload = function(event) {
+			if (xhr.status == 200) {
+				console.log(xhr.response);
+				$('#token').html('Current Token: ' + xhr.response);
+			} else {
+				console.log(event);
+			}
+		}
+
+		xhr.send(JSON.stringify(payload));
+	}
     $(document).ready(function () {
+    	console.log(SHA256("123qwe!@#"));
         $('#generateToken').on('click', function () {
             /*$.ajax({
                 url: '/api/newToken',
@@ -60,26 +85,7 @@
                 }
             });*/
 
-            var payload = {
-            		username: 'kkkkkk',
-            		password: SHA256("123qwe!@#")
-            };
-            var url = location.protocol.concat("//", location.host, "/api/newToken");
-
-    		var xhr = new XMLHttpRequest();
-
-    		xhr.open("POST", url, true);
-    		xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    		xhr.responseType = "text";
-    		xhr.onload = function(event) {
-    			if (xhr.status == 200) {
-    				$('#token').html('Current Token: ' + xhr.response);
-    			} else {
-    				console.log(event);
-    			}
-    		}
-
-    		xhr.send(JSON.stringify(payload));
+            
 
         });
         $('#getProtected').on('click', function () {
