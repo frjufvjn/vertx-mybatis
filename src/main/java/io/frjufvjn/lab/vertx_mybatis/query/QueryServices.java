@@ -12,4 +12,6 @@ public interface QueryServices {
 	public Map<String,Object> getQuery(Map<String,Object> reqData) throws Exception;
 	
 	public Map<String,Object> getQuery(RoutingContext ctx) throws Exception;
+	
+	public Map<String,Object> getQueryWithoutParam(RoutingContext ctx) throws Exception;
 }

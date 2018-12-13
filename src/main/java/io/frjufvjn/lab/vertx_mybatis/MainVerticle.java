@@ -48,6 +48,7 @@ public class MainVerticle extends ApiServiceCommon {
 	private final Logger logger = LogManager.getLogger(MainVerticle.class);
 	private Properties properties;
 	private LocalMap<String,JsonObject> wsSessions = null;
+	private JWTAuth jwtProvider;
 
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
@@ -159,7 +160,7 @@ public class MainVerticle extends ApiServiceCommon {
 		/**
 		 * @description Create a JWT Auth Provider
 		 * */
-		JWTAuth jwtProvider = JWTAuth.create(vertx, 
+		jwtProvider = JWTAuth.create(vertx, 
 				new JWTAuthOptions().setKeyStore(
 						new KeyStoreOptions()
 						.setType("jceks")
@@ -178,51 +179,7 @@ public class MainVerticle extends ApiServiceCommon {
 		/**
 		 * @description this route is excluded from the auth handler
 		 * */
-		router.route(HttpMethod.POST, "/api/newToken").handler(ctx -> {
-
-			String username = ctx.getBodyAsJson().getString("username");
-			String password = ctx.getBodyAsJson().getString("password");
-
-			VertxSqlConnectionFactory.getClient().getConnection(conn -> {
-				if (conn.failed()) {
-					ctx.response().setStatusCode(500)
-					.putHeader("content-type", "application/json")
-					.end(new JsonObject().put("error", conn.cause().getMessage()).encodePrettily());
-				}
-
-				try ( final SQLConnection connection = conn.result() ) {
-					connection.queryWithParams("SELECT password FROM cs_usermaster where user_id = ?", new JsonArray().add(username), ar -> {
-						if(ar.succeeded()) {
-							String resPasswd = ar.result().getRows().get(0).getString("password");
-							if ( password.equals(resPasswd) ) {
-								ctx.response().putHeader("Content-Type", "text/plain")
-								.end(jwtProvider.generateToken(
-										new JsonObject(),
-										new JWTOptions()
-										.setExpiresInSeconds(120)
-										));
-							} else {
-								ctx.response().setStatusCode(401)
-								.putHeader("content-type", "application/json")
-								.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
-							}
-						} else {
-							ctx.response().setStatusCode(500)
-							.putHeader("content-type", "application/json")
-							.end(new JsonObject().put("error", ar.cause().getMessage()).encodePrettily());
-						}
-					});
-				}
-			});
-		});
-
-		/**
-		 * @description this is the secret API
-		 * */
-		router.post("/api/protected").handler(ctx -> {
-			ctx.response().putHeader("Content-Type", "text/plain");
-			ctx.response().end("success auth !!");
-		});
+		router.route(HttpMethod.POST, "/api/newToken").handler(this::generateJwtToken);
 
 		/**
 		 * @description SQL API Service Router Defined
@@ -231,13 +188,63 @@ public class MainVerticle extends ApiServiceCommon {
 		router.post("/api/read").handler(this::apiRead);
 		router.post("/api/update").handler(this::apiUpdate);
 		router.post("/api/delete").handler(this::apiDelete);
-
-		router.post("/api/create/multi").handler(this::apiCreateMulti);
-		router.post("/api/update/multi").handler(this::apiUpdateMulti);
-		router.post("/api/delete/multi").handler(this::apiDeleteMulti);
+		router.post("/api/create/multi").handler(this::apiCreateBatch);
+		router.post("/api/update/multi").handler(this::apiUpdateBatch);
+		router.post("/api/delete/multi").handler(this::apiDeleteBatch);
 	}
 
 
+	/**
+	 * @description JWT Token Generate
+	 * @param ctx
+	 */
+	private void generateJwtToken(RoutingContext ctx) {
+
+		String username = ctx.getBodyAsJson().getString("username");
+		String password = ctx.getBodyAsJson().getString("password");
+
+		VertxSqlConnectionFactory.getClient().getConnection(conn -> {
+			if (conn.failed()) {
+				ctx.response().setStatusCode(500)
+				.putHeader("content-type", "application/json")
+				.end(new JsonObject().put("error", conn.cause().getMessage()).encodePrettily());
+			}
+
+			try ( final SQLConnection connection = conn.result() ) {
+				String sql = "SELECT password FROM cs_usermaster where user_id = ?";
+				JsonArray params = new JsonArray().add(username);
+
+				connection.queryWithParams(sql, params, ar -> {
+					if(ar.succeeded()) {
+						if ( ar.result().getRows().size() <= 0 ) {
+							ctx.response().setStatusCode(401)
+							.putHeader("content-type", "application/json")
+							.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
+						} else {
+							String resPasswd = ar.result().getRows().get(0).getString("password");
+
+							if ( password.equals(resPasswd) ) {
+								ctx.response().putHeader("Content-Type", "text/plain")
+								.end(jwtProvider.generateToken(
+										new JsonObject(),
+										new JWTOptions()
+										.setExpiresInMinutes(30)
+										));
+							} else {
+								ctx.response().setStatusCode(401)
+								.putHeader("content-type", "application/json")
+								.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
+							}
+						}
+					} else {
+						ctx.response().setStatusCode(500)
+						.putHeader("content-type", "application/json")
+						.end(new JsonObject().put("error", ar.cause().getMessage()).encodePrettily());
+					}
+				});
+			}
+		});
+	}
 
 	/**
 	 * @description Enable CORS support for web router.

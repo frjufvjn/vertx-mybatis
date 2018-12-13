@@ -4,7 +4,7 @@
   <class id="1" language="java" name="io.frjufvjn.lab.vertx_mybatis.query.QueryModule" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryModule.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="662" y="255"/>    
+    <position height="-1" width="-1" x="631" y="424"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -14,7 +14,7 @@
   <class id="2" language="java" name="io.frjufvjn.lab.vertx_mybatis.sql.SqlServiceImp" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/sql/SqlServiceImp.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="471" y="162"/>    
+    <position height="-1" width="-1" x="587" y="291"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -24,7 +24,7 @@
   <class id="3" language="java" name="io.frjufvjn.lab.vertx_mybatis.common.ApiServiceCommon" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/common/ApiServiceCommon.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="317" y="69"/>    
+    <position height="-1" width="-1" x="416" y="198"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -34,7 +34,7 @@
   <class id="4" language="java" name="io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SchemaService" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/SchemaService.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1208" y="161"/>    
+    <position height="-1" width="-1" x="1136" y="292"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -44,7 +44,7 @@
   <class id="5" language="java" name="io.frjufvjn.lab.vertx_mybatis.common.ApiCommon" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/common/ApiCommon.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="526" y="69"/>    
+    <position height="-1" width="-1" x="642" y="198"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -54,7 +54,7 @@
   <class id="6" language="java" name="io.frjufvjn.lab.vertx_mybatis.MainVerticle" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/MainVerticle.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="147" y="162"/>    
+    <position height="-1" width="-1" x="223" y="291"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -65,7 +65,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/BinlogEventType.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1432" y="161"/>    
+    <position height="-1" width="-1" x="1360" y="292"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -76,7 +76,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/factory/VertxSqlConnectionFactory.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="870" y="255"/>    
+    <position height="-1" width="-1" x="861" y="294"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -86,7 +86,7 @@
   <interface id="9" language="java" name="io.frjufvjn.lab.vertx_mybatis.sql.SqlServices" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/sql/SqlServices.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="305" y="255"/>    
+    <position height="-1" width="-1" x="404" y="291"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -96,7 +96,7 @@
   <interface id="10" language="java" name="io.frjufvjn.lab.vertx_mybatis.query.QueryServices" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryServices.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="515" y="489"/>    
+    <position height="-1" width="-1" x="631" y="618"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -107,7 +107,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/SqlServiceVerticle.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="984" y="161"/>    
+    <position height="-1" width="-1" x="1136" y="379"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -118,7 +118,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/factory/MyBatisConnectionFactory.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="743" y="395"/>    
+    <position height="-1" width="-1" x="859" y="524"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -129,88 +129,87 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/BinLogClientVerticle.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1320" y="68"/>    
+    <position height="-1" width="-1" x="1248" y="199"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <class id="14" language="java" name="io.frjufvjn.lab.vertx_mybatis.query.QueryGetter" project="vertx-mybatis" 
-    file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryGetter.java" binary="false" 
+  <class id="14" language="java" name="io.frjufvjn.lab.vertx_mybatis.query.QueryServiceImp" project="vertx-mybatis" 
+    file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryServiceImp.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="515" y="395"/>    
+    <position height="-1" width="-1" x="631" y="524"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <realization id="15">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="10"/>  
-  </realization>  
-  <dependency id="16">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="2"/>  
-  </dependency>  
-  <realization id="17">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="9"/>  
-  </realization>  
-  <dependency id="18">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="4"/>  
-  </dependency>  
-  <dependency id="19">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <dependency id="20">    
-    <bendpoint x="408" y="229"/>    
-    <bendpoint x="408" y="423"/>    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="10"/>  
-  </dependency>  
-  <generalization id="21">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="5"/>  
-  </generalization>  
-  <dependency id="22">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="14"/>  
-  </dependency>  
-  <dependency id="23">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="7"/>  
-  </dependency>  
-  <dependency id="24">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="1"/>  
-  </dependency>  
-  <dependency id="25">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <dependency id="26">    
-    <bendpoint x="617" y="435"/>    
+  <dependency id="15">    
+    <bendpoint x="733" y="448"/>    
+    <bendpoint x="733" y="564"/>    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="10"/>  
   </dependency>  
-  <dependency id="27">    
-    <bendpoint x="242" y="136"/>    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="9"/>  
-  </dependency>  
-  <dependency id="28">    
-    <bendpoint x="767" y="162"/>    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="1"/>  
-  </dependency>  
-  <generalization id="29">    
+  <generalization id="16">    
     <end type="SOURCE" refId="6"/>    
     <end type="TARGET" refId="3"/>  
   </generalization>  
+  <dependency id="17">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <dependency id="18">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="19">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <realization id="20">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <dependency id="21">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <realization id="22">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="10"/>  
+  </realization>  
+  <dependency id="23">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <dependency id="24">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="25">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <dependency id="26">    
+    <bendpoint x="524" y="358"/>    
+    <bendpoint x="524" y="552"/>    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="10"/>  
+  </dependency>  
+  <dependency id="27">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <generalization id="28">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <dependency id="29">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="14"/>  
+  </dependency>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false" static="false"/>    

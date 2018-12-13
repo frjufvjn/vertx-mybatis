@@ -79,27 +79,39 @@ public abstract class ApiServiceCommon extends AbstractVerticle {
 	}
 
 	/**
-	 * @description SQL API Multi-Row Base INSERT Service (C of CRUD)  
+	 * @description SQL API Multi-Row Base Bach Mode INSERT Service (C of CRUD)  
 	 * @param ctx
 	 */
-	protected void apiCreateMulti(RoutingContext ctx) {
-		// TODO
+	protected void apiCreateBatch(RoutingContext ctx) {
+		try {
+			sqlService.getInstance(SqlServices.class).sqlApiCreateBatch(ctx);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
-	 * @description SQL API Multi-Row Base UPDATE Service (U of CRUD)  
+	 * @description SQL API Multi-Row Base Bach Mode UPDATE Service (U of CRUD)  
 	 * @param ctx
 	 */
-	protected void apiUpdateMulti(RoutingContext ctx) {
-		// TODO
+	protected void apiUpdateBatch(RoutingContext ctx) {
+		try {
+			sqlService.getInstance(SqlServices.class).sqlApiUpdateBatch(ctx);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
-	 * @description SQL API Multi-Row Base DELETE Service (D of CRUD)  
+	 * @description SQL API Multi-Row Base Bach Mode DELETE Service (D of CRUD)  
 	 * @param ctx
 	 */
-	protected void apiDeleteMulti(RoutingContext ctx) {
-		// TODO
+	protected void apiDeleteBatch(RoutingContext ctx) {
+		try {
+			sqlService.getInstance(SqlServices.class).sqlApiDeleteBatch(ctx);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

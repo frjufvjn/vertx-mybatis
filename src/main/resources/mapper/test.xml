@@ -16,6 +16,9 @@
 		select count(*) row_cnt from test1
 	</select>
 	
+	<select id="sql_read_test" parameterType="map">
+		SELECT * FROM cs_usermaster WHERE user_id = #{user_id}
+	</select>
 	<insert id="sql_insert_test" parameterType="map">
 		insert into tb_test (data1, data2, data3) 
 		values (#{data1}, #{data2}, #{data3})
@@ -30,4 +33,9 @@
 	<delete id="sql_delete_test" parameterType="map">
 		DELETE FROM tb_test WHERE data1 = #{data1}
 	</delete>
+	
+	<insert id="sql_insert_batch_test">
+		INSERT INTO tb_test (data1, data2, data3)
+		VALUES (#{data1}, #{data2}, #{data3})
+	</insert>
 </mapper>

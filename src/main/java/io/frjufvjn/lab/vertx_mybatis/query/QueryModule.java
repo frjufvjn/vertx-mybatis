@@ -7,7 +7,7 @@ public class QueryModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(QueryServices.class).to(QueryGetter.class)
+		bind(QueryServices.class).to(QueryServiceImp.class)
 		.in(Scopes.SINGLETON);
 	}
 }
