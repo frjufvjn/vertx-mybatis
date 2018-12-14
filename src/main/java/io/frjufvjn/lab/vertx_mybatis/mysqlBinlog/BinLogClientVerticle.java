@@ -33,6 +33,10 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.shareddata.LocalMap;
 
+/**
+ * 	@author PJW
+ *	@description NOTE : Vertx's multi instance usage is not supported
+ */
 public class BinLogClientVerticle extends AbstractVerticle {
 
 	private final Logger logger = LogManager.getLogger(BinLogClientVerticle.class);

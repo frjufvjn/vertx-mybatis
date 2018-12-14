@@ -54,7 +54,7 @@ public class MainVerticle extends ApiServiceCommon {
 		// log4j2 delegate
 		System.setProperty("vertx.logger-delegate-factory-class-name", Log4j2LogDelegateFactory.class.getName());
 
-		logger.info("hashCode : {}", vertx.hashCode());
+		logger.info("hashCode : {}, context's hashcode : {}", vertx.hashCode(), vertx.getOrCreateContext().hashCode() );
 
 		// Server Config File Load
 		properties = new Properties();
@@ -92,7 +92,7 @@ public class MainVerticle extends ApiServiceCommon {
 				startFuture.fail(res.cause());
 			} else {
 				startFuture.complete();
-				logger.info("Server listening at: http://localhost:{}", httpServerPort);
+				logger.info("Server listening at: http://localhost:{}, hashcode:{}", httpServerPort, vertx.getOrCreateContext().hashCode());
 			}
 		});
 
@@ -477,11 +477,10 @@ public class MainVerticle extends ApiServiceCommon {
 	 *              <li>Test : curl http://localhost:18080/proxy/testuserid/50000/20180701000000/20180730235959/no/no
 	 * @param ctx
 	 */
-	@SuppressWarnings({ "static-access", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	private void proxyMultiRequest(RoutingContext ctx) {
 
-		int thisHashCode = vertx.factory.context().hashCode();
-		logger.info("proxyMultiRequest invoke : " + thisHashCode);
+		logger.info("proxyMultiRequest invoke : " + vertx.getOrCreateContext().hashCode());
 
 		long starttime = System.currentTimeMillis();
 
@@ -562,9 +561,7 @@ public class MainVerticle extends ApiServiceCommon {
 	@SuppressWarnings("rawtypes")
 	private void proxyMultiRequestTutorial(RoutingContext ctx) {
 
-		@SuppressWarnings("static-access")
-		int thisHashCode = vertx.factory.context().hashCode();
-		logger.info("proxyMultiRequest invoke : " + thisHashCode);
+		logger.info("proxyMultiRequest invoke : " + vertx.getOrCreateContext().hashCode());
 
 		long start = System.currentTimeMillis();
 

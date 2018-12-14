@@ -1,6 +1,5 @@
 package io.frjufvjn.lab.vertx_mybatis.sql;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -55,6 +54,7 @@ public class EBSqlServiceVerticle extends AbstractVerticle {
 
 				/**
 				 * @description NOTE : There is no Asynchronous effect and it is sequential. 
+				 * 
 				 * VertxSqlConnectionFactory.getClient().query((String)queryInfo.get("sql"), ar -> {
 						if (ar.succeeded()) {
 							msg.reply(ar.result().getRows().toString() );

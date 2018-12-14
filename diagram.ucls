@@ -54,7 +54,7 @@
   <class id="6" language="java" name="io.frjufvjn.lab.vertx_mybatis.MainVerticle" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/MainVerticle.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="223" y="291"/>    
+    <position height="-1" width="-1" x="223" y="198"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -76,7 +76,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/factory/VertxSqlConnectionFactory.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="858" y="292"/>    
+    <position height="-1" width="-1" x="881" y="291"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -106,7 +106,7 @@
   <class id="11" language="java" name="io.frjufvjn.lab.vertx_mybatis.sql.EBSqlServiceVerticle" project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/sql/EBSqlServiceVerticle.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1136" y="379"/>    
+    <position height="-1" width="-1" x="864" y="424"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -117,7 +117,7 @@
     project="vertx-mybatis" 
     file="/vertx-mybatis/src/main/java/io/frjufvjn/lab/vertx_mybatis/factory/MyBatisConnectionFactory.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="859" y="524"/>    
+    <position height="-1" width="-1" x="879" y="524"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="false" package="false" protected="false" private="false" static="false"/>      
@@ -150,65 +150,65 @@
     <end type="TARGET" refId="1"/>  
   </dependency>  
   <dependency id="16">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="4"/>  
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="14"/>  
   </dependency>  
-  <realization id="17">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="10"/>  
-  </realization>  
-  <generalization id="18">    
+  <generalization id="17">    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="5"/>  
   </generalization>  
-  <dependency id="19">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <dependency id="20">    
+  <dependency id="18">    
     <end type="SOURCE" refId="3"/>    
     <end type="TARGET" refId="2"/>  
   </dependency>  
+  <dependency id="19">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <dependency id="20">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
   <dependency id="21">    
     <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="7"/>  
+    <end type="TARGET" refId="4"/>  
   </dependency>  
-  <dependency id="22">    
+  <realization id="22">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <dependency id="23">    
     <bendpoint x="733" y="448"/>    
     <bendpoint x="733" y="564"/>    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="10"/>  
   </dependency>  
-  <dependency id="23">    
+  <dependency id="24">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="25">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="26">    
     <bendpoint x="524" y="358"/>    
     <bendpoint x="524" y="552"/>    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="10"/>  
   </dependency>  
-  <realization id="24">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="9"/>  
+  <realization id="27">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="10"/>  
   </realization>  
-  <dependency id="25">    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="1"/>  
-  </dependency>  
-  <generalization id="26">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="3"/>  
-  </generalization>  
-  <dependency id="27">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="9"/>  
-  </dependency>  
   <dependency id="28">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="14"/>  
-  </dependency>  
-  <dependency id="29">    
     <end type="SOURCE" refId="4"/>    
     <end type="TARGET" refId="8"/>  
   </dependency>  
+  <generalization id="29">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false" static="false"/>    
