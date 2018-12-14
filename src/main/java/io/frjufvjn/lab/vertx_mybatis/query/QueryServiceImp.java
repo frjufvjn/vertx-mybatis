@@ -77,11 +77,26 @@ public class QueryServiceImp implements QueryServices {
 	 */
 	@Override
 	public Map<String, Object> getQuery(RoutingContext ctx) throws Exception {
+		return getQueryFromParam(getParamToMapFromCtx(ctx));
+	}
+
+
+	/* (non-Javadoc)
+	 * @see io.frjufvjn.lab.vertx_mybatis.query.QueryServices#getQuery(io.vertx.core.json.JsonObject)
+	 */
+	@Override
+	public Map<String, Object> getQuery(JsonObject params) throws Exception {
+		return getQueryFromParam(getParamToMap(params));
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private Map<String, Object> getQueryFromParam(Map<String,Object> reqData) {
 		Map<String,Object> result = new LinkedHashMap<String,Object>();
 		String queryString = DEFAULT_SQL;
 		JsonArray jsonParam = new JsonArray();
-
-		Map<String,Object> reqData = getParamToMap(ctx);
 
 		if ( !reqData.containsKey(SQL_NAME) ) {
 			throw new IllegalArgumentException("sqlName parameter not found");
@@ -165,9 +180,17 @@ public class QueryServiceImp implements QueryServices {
 	 * @param ctx
 	 * @return
 	 */
-	private Map<String,Object> getParamToMap(RoutingContext ctx) {
+	private Map<String,Object> getParamToMapFromCtx(RoutingContext ctx) {
 		Map<String,Object> map = new LinkedHashMap<String,Object>();
 		ctx.getBodyAsJson().forEach(param -> {
+			map.put(param.getKey(), param.getValue());
+		});
+		return map;
+	}
+
+	private Map<String,Object> getParamToMap(JsonObject params) {
+		Map<String,Object> map = new LinkedHashMap<String,Object>();
+		params.forEach(param -> {
 			map.put(param.getKey(), param.getValue());
 		});
 		return map;
@@ -195,14 +218,14 @@ public class QueryServiceImp implements QueryServices {
 		List<JsonArray> batch = new ArrayList<JsonArray>();
 
 		ctx.getBodyAsJson().getJsonArray(BATCH_PARAM_KEY)
-			.stream().forEach(row -> {
-				JsonObject obj = (JsonObject) row;
-				JsonArray innerArr = new JsonArray();
-				obj.fieldNames().forEach(key -> {
-					innerArr.add(obj.getValue(key));
-				});
-				batch.add(innerArr);
+		.stream().forEach(row -> {
+			JsonObject obj = (JsonObject) row;
+			JsonArray innerArr = new JsonArray();
+			obj.fieldNames().forEach(key -> {
+				innerArr.add(obj.getValue(key));
 			});
+			batch.add(innerArr);
+		});
 		return batch;
 	}
 }

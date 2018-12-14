@@ -25,6 +25,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 
+import io.frjufvjn.lab.vertx_mybatis.Constants;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
@@ -42,8 +43,6 @@ public class BinLogClientVerticle extends AbstractVerticle {
 	LocalMap<String,JsonObject> sessions = null;
 
 	final private String BINLOG_SERVICE_CONFIG = "config/pubsub-mysql-service.json";
-	final private String BINLOG_SQL_VERTICLE = "io.frjufvjn.lab.vertx_mybatis.mysqlBinlog.SqlServiceVerticle";
-	final private String EB_MSG_KEY_SQL = "msg.mysql.live.select.getsql";
 	final private String EB_MSG_KEY_WS = "msg.mysql.live.select";
 
 	@Override
@@ -52,7 +51,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		/**
 		 * @description User Session Map From Websocket
 		 * */
-		sessions = vertx.sharedData().getLocalMap("ws.channel");
+		sessions = vertx.sharedData().getLocalMap(Constants.WEBSOCKET_CHANNEL);
 
 
 
@@ -80,17 +79,6 @@ public class BinLogClientVerticle extends AbstractVerticle {
 		});
 
 		services.getInstance(SchemaService.class).loadSchemaData(config().getString("schema"));
-
-
-
-		/**
-		 * @description Deploy Binlog SQL Verticle
-		 * */
-		vertx.deployVerticle(BINLOG_SQL_VERTICLE, dep -> {
-			if (dep.succeeded()) {
-				logger.info("mysqlBinlog.SqlServiceVerticle deploy success");
-			}
-		});
 
 
 
@@ -155,7 +143,7 @@ public class BinLogClientVerticle extends AbstractVerticle {
 					EventBus eb = vertx.eventBus();
 
 					// Execute Query with sql registered in service configuration.
-					eb.send(EB_MSG_KEY_SQL, sqlName, reply -> {
+					eb.send(Constants.EVENTBUS_SQL_VERTICLE_ADDR, new JsonObject().put("sqlName", sqlName) , reply -> {
 						if (reply.succeeded()) {
 							// Send the query result to the client registered in websocket.
 							sessions.forEach((key,sessionObj) -> {

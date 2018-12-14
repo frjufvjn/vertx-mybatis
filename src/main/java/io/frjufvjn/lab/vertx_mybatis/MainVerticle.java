@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.frjufvjn.lab.vertx_mybatis.common.ApiServiceCommon;
-import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -35,7 +34,6 @@ import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.jwt.JWTOptions;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -58,6 +56,7 @@ public class MainVerticle extends ApiServiceCommon {
 
 		logger.info("hashCode : {}", vertx.hashCode());
 
+		// Server Config File Load
 		properties = new Properties();
 		try (InputStream inputStream = getClass().getResourceAsStream("/config/app.properties")) {
 			properties.load(inputStream);
@@ -65,12 +64,11 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 
+		/**
+		 * @description HTTP Router Setting
+		 * */
 		final Router router = Router.router(vertx);
 		router.route().handler(StaticHandler.create().setCachingEnabled(false));
-
-		router.route(HttpMethod.GET, "/proxy/:userid/:fetchrow/:startdt/:enddt/:phone/:custno").handler(this::proxyMultiRequest);
-		router.route(HttpMethod.GET, "/proxy-test").handler(this::proxyMultiRequestTutorial);
-		router.route(HttpMethod.GET, "/jseb/:message").handler(this::jsEbTest);
 
 
 
@@ -79,7 +77,7 @@ public class MainVerticle extends ApiServiceCommon {
 		 */
 		final HttpServer httpServer = vertx.createHttpServer();
 		int httpServerPort = Integer.parseInt(properties.getProperty("HTTP_SERVER_PORT", "8080"));
-		wsSessions = vertx.sharedData().getLocalMap("ws.channel");
+		wsSessions = vertx.sharedData().getLocalMap(Constants.WEBSOCKET_CHANNEL);
 
 		// RequestHandler
 		httpServer.requestHandler(router::accept);
@@ -108,9 +106,9 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 		/**
-		 * @description Secret Service Router
+		 * @description Service Router protected by JWT
 		 * */
-		secretServiceRouter(router);
+		serviceRouter(router);
 
 
 
@@ -119,6 +117,12 @@ public class MainVerticle extends ApiServiceCommon {
 		 * */
 		subVerticleDeploy();
 
+
+
+		/**
+		 * @description Deploy EventBus SQL Verticle
+		 * */
+		eventBusSqlDeploy();
 
 
 
@@ -147,15 +151,22 @@ public class MainVerticle extends ApiServiceCommon {
 		 * @description periodicJob
 		 */
 		periodicJob();
+
+
+
+		/**
+		 * @description prototype http router for Test
+		 * */
+		prototypeHttpRouter(router);
 	}
 
 
 
 	/**
-	 * @description Auth API Service Router
+	 * @description API Service Router
 	 * @param router
 	 */
-	private void secretServiceRouter(final Router router) {
+	private void serviceRouter(final Router router) {
 
 		/**
 		 * @description Create a JWT Auth Provider
@@ -169,6 +180,8 @@ public class MainVerticle extends ApiServiceCommon {
 						)
 				);
 
+
+
 		/**
 		 * @description protect the API
 		 * */
@@ -176,10 +189,14 @@ public class MainVerticle extends ApiServiceCommon {
 		.handler(JWTAuthHandler.create(jwtProvider, "/api/newToken"))
 		.handler(BodyHandler.create());
 
+
+
 		/**
 		 * @description this route is excluded from the auth handler
 		 * */
 		router.route(HttpMethod.POST, "/api/newToken").handler(this::generateJwtToken);
+
+
 
 		/**
 		 * @description SQL API Service Router Defined
@@ -202,46 +219,39 @@ public class MainVerticle extends ApiServiceCommon {
 
 		String username = ctx.getBodyAsJson().getString("username");
 		String password = ctx.getBodyAsJson().getString("password");
+		JsonObject sqlParams = new JsonObject()
+				.put("sqlName", "sql_user_authentication")
+				.put("user_id", username)
+				;
 
-		VertxSqlConnectionFactory.getClient().getConnection(conn -> {
-			if (conn.failed()) {
-				ctx.response().setStatusCode(500)
-				.putHeader("content-type", "application/json")
-				.end(new JsonObject().put("error", conn.cause().getMessage()).encodePrettily());
-			}
-
-			try ( final SQLConnection connection = conn.result() ) {
-				String sql = "SELECT password FROM cs_usermaster where user_id = ?";
-				JsonArray params = new JsonArray().add(username);
-
-				connection.queryWithParams(sql, params, ar -> {
-					if(ar.succeeded()) {
-						if ( ar.result().getRows().size() <= 0 ) {
+		ctx.vertx().eventBus().send(Constants.EVENTBUS_SQL_VERTICLE_ADDR, sqlParams, reply -> {
+			if (reply.succeeded()) {
+				String res = ((String) reply.result().body());
+				if ( Constants.EVENTBUS_SQL_VERTICLE_FAIL_SIGNAL.equals(res) ) {
+					ctx.response().setStatusCode(500)
+					.putHeader("content-type", "application/json")
+					.end( new JsonObject().put("error", "Authentication Server Error").encodePrettily() );
+				} else {
+					if (new JsonArray(res).size() > 0) {
+						String comparePasswd = new JsonArray(res).getJsonObject(0).getString("password", "");
+						if (password.equals(comparePasswd)) {
+							ctx.response().putHeader("Content-Type", "text/plain")
+							.end(jwtProvider.generateToken(
+									new JsonObject(),
+									new JWTOptions()
+									.setExpiresInMinutes(30)
+									));
+						} else {
 							ctx.response().setStatusCode(401)
 							.putHeader("content-type", "application/json")
 							.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
-						} else {
-							String resPasswd = ar.result().getRows().get(0).getString("password");
-
-							if ( password.equals(resPasswd) ) {
-								ctx.response().putHeader("Content-Type", "text/plain")
-								.end(jwtProvider.generateToken(
-										new JsonObject(),
-										new JWTOptions()
-										.setExpiresInMinutes(30)
-										));
-							} else {
-								ctx.response().setStatusCode(401)
-								.putHeader("content-type", "application/json")
-								.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
-							}
 						}
 					} else {
-						ctx.response().setStatusCode(500)
+						ctx.response().setStatusCode(401)
 						.putHeader("content-type", "application/json")
-						.end(new JsonObject().put("error", ar.cause().getMessage()).encodePrettily());
+						.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
 					}
-				});
+				}
 			}
 		});
 	}
@@ -270,8 +280,11 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 
+	/**
+	 * @description sub verticle deploy
+	 */
 	private void subVerticleDeploy() {
-		vertx.deployVerticle("io.frjufvjn.lab.vertx_mybatis.SubVerticle", deploy -> {
+		vertx.deployVerticle(Constants.VERTICLE_SUB, deploy -> {
 			if (deploy.succeeded()) {
 				logger.info("SubVerticle deploy successfully ID: " + deploy.result());
 			} else {
@@ -283,6 +296,22 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 
+	/**
+	 * @description EventBus Sql Verticle Deploy
+	 */
+	private void eventBusSqlDeploy() {
+		vertx.deployVerticle(Constants.VERTICLE_EVENTBUS_SQL, dep -> {
+			if (dep.succeeded()) {
+				logger.info("{} deploy success", Constants.VERTICLE_EVENTBUS_SQL);
+			}
+		});
+	}
+
+
+
+	/**
+	 * @description Consume EventBus message from MySQL Binlog Verticle
+	 */
 	private void binlogConsumer() {
 		EventBus eb = vertx.eventBus();
 		eb.consumer("msg.mysql.live.select", msg -> {
@@ -299,6 +328,9 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 
+	/**
+	 * @description MySQL Binlog Verticle Deploy
+	 */
 	private void binlogDeploy() {
 		vertx.fileSystem().readFile("config/pubsub-mysql-server.json", ar -> { // server connection config read
 			if (ar.succeeded()) {
@@ -426,18 +458,14 @@ public class MainVerticle extends ApiServiceCommon {
 
 
 
-	private void jsEbTest(RoutingContext ctx) {
-		HttpServerResponse response = ctx.response();
-
-		EventBus eb = vertx.eventBus();
-		String passMessage = ctx.request().getParam("message");
-
-		eb.send("msg.jsverticle.test", passMessage, reply -> {
-			if (reply.succeeded()) {
-				logger.info("received reply : " + reply.result().body());
-				response.end("jsVerticle Reply Message : [" + reply.result().body() + "]");
-			}
-		});
+	/**
+	 * @description prototype http router for Test
+	 * @param router
+	 */
+	private void prototypeHttpRouter(final Router router) {
+		router.route(HttpMethod.GET, "/proxy/:userid/:fetchrow/:startdt/:enddt/:phone/:custno").handler(this::proxyMultiRequest);
+		router.route(HttpMethod.GET, "/proxy-test").handler(this::proxyMultiRequestTutorial);
+		router.route(HttpMethod.GET, "/jseb/:message").handler(this::jsEbTest);
 	}
 
 
@@ -588,11 +616,10 @@ public class MainVerticle extends ApiServiceCommon {
 	 * @return
 	 */
 	private String getSysDateString(Date date, String pattern) {
-		String result = null;
 		java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(pattern);
-		result = format.format(date);
-		return result;
+		return format.format(date);
 	}
+
 
 
 	/**
@@ -608,5 +635,24 @@ public class MainVerticle extends ApiServiceCommon {
 		//				vertx.close();
 		//			}
 		//		});
+	}
+
+
+	/**
+	 * @description test
+	 * @param ctx
+	 */
+	private void jsEbTest(RoutingContext ctx) {
+		HttpServerResponse response = ctx.response();
+
+		EventBus eb = vertx.eventBus();
+		String passMessage = ctx.request().getParam("message");
+
+		eb.send("msg.jsverticle.test", passMessage, reply -> {
+			if (reply.succeeded()) {
+				logger.info("received reply : " + reply.result().body());
+				response.end("jsVerticle Reply Message : [" + reply.result().body() + "]");
+			}
+		});
 	}
 }
