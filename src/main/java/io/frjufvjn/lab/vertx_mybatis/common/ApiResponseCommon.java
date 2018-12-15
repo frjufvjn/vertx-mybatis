@@ -3,9 +3,9 @@ package io.frjufvjn.lab.vertx_mybatis.common;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
-public class ApiCommon {
+public class ApiResponseCommon {
 
-	public ApiCommon() {
+	public ApiResponseCommon() {
 		super();
 	}
 

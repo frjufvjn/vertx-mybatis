@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.google.inject.Guice;
 
-import io.frjufvjn.lab.vertx_mybatis.common.ApiCommon;
+import io.frjufvjn.lab.vertx_mybatis.common.ApiResponseCommon;
 import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.frjufvjn.lab.vertx_mybatis.query.QueryModule;
 import io.frjufvjn.lab.vertx_mybatis.query.QueryServices;
@@ -19,7 +19,7 @@ import io.vertx.ext.web.RoutingContext;
  * @author PJW
  *
  */
-public class SqlServiceImp extends ApiCommon implements SqlServices {
+public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 
 	/* (non-Javadoc)
 	 * @see io.frjufvjn.lab.vertx_mybatis.sql.SqlServices#sqlApiRead(io.vertx.ext.web.RoutingContext)
