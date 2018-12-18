@@ -21,20 +21,25 @@ import io.vertx.ext.web.RoutingContext;
 public class QueryServiceImp implements QueryServices {
 
 	/**
-	 * 
+	 * @description sql name property name
 	 */
 	private final String SQL_NAME = "sqlName";
 
 	/**
-	 * 
+	 * @description batch sql param key
+	 * */
+	private final String BATCH_PARAM_KEY = "arr";
+
+	/**
+	 * @description default sql query
 	 */
 	private final String DEFAULT_SQL = "SELECT 1";
 
-	private final String BATCH_PARAM_KEY = "arr";
-
-	/* (non-Javadoc)
-	 * @see io.frjufvjn.lab.vertx_mybatis.query.QueryServices#getQuery(java.util.Map)
-	 */
+	/**
+	 * @description Get query and bind param from request parameter
+	 * @param reqData
+	 * @return map {sqlString, sqlParam}
+	 * */
 	@Override
 	public Map<String, Object> getQuery(Map<String, Object> reqData) throws Exception {
 
@@ -42,7 +47,7 @@ public class QueryServiceImp implements QueryServices {
 		String queryString = DEFAULT_SQL;
 		JsonArray jsonParam = new JsonArray();
 
-
+		// MyBatis session open
 		try ( final SqlSession sqlsession = MyBatisConnectionFactory.getSqlSessionFactory().openSession(); ) {
 			String sqlName = reqData.get(SQL_NAME).toString();
 			reqData.remove(SQL_NAME);
@@ -72,36 +77,43 @@ public class QueryServiceImp implements QueryServices {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.frjufvjn.lab.vertx_mybatis.query.QueryServices#getQuery(io.vertx.ext.web.RoutingContext)
-	 */
+	/**
+	 * @description Get query and bind param from routingContext
+	 * @param ctx
+	 * @return map {sqlString, sqlParam}
+	 * */
 	@Override
 	public Map<String, Object> getQuery(RoutingContext ctx) throws Exception {
 		return getQueryFromParam(getParamToMapFromCtx(ctx));
 	}
 
 
-	/* (non-Javadoc)
-	 * @see io.frjufvjn.lab.vertx_mybatis.query.QueryServices#getQuery(io.vertx.core.json.JsonObject)
-	 */
+	/**
+	 * @description Get query and bind param from jsonobject
+	 * @param reqData
+	 * @return map {sqlString, sqlParam}
+	 * */
 	@Override
 	public Map<String, Object> getQuery(JsonObject params) throws Exception {
 		return getQueryFromParam(getParamToMap(params));
 	}
 
 	/**
-	 * @param ctx
-	 * @return
+	 * @description Common method (get query and bind param from request map)
+	 * @param reqData
+	 * @return map {sqlString, sqlParam}
 	 */
 	private Map<String, Object> getQueryFromParam(Map<String,Object> reqData) {
 		Map<String,Object> result = new LinkedHashMap<String,Object>();
 		String queryString = DEFAULT_SQL;
 		JsonArray jsonParam = new JsonArray();
-
+		
+		// sqlname validation
 		if ( !reqData.containsKey(SQL_NAME) ) {
 			throw new IllegalArgumentException("sqlName parameter not found");
 		}
-
+		
+		// MyBatis open session
 		try ( final SqlSession sqlsession = MyBatisConnectionFactory.getSqlSessionFactory().openSession(); ) {
 			String sqlName = reqData.get(SQL_NAME).toString();
 			reqData.remove(SQL_NAME);
@@ -117,7 +129,8 @@ public class QueryServiceImp implements QueryServices {
 
 			// get Parameter
 			List<ParameterMapping> paramMapping = boundSql.getParameterMappings();
-
+			
+			// sql bind parameter validation
 			if ( paramMapping.size() != reqData.size() ) {
 				throw new IllegalStateException("The number of sql parameter is insufficient or exceeded.");
 			}
@@ -136,9 +149,11 @@ public class QueryServiceImp implements QueryServices {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.frjufvjn.lab.vertx_mybatis.query.QueryServices#getQueryWithoutParam(io.vertx.ext.web.RoutingContext)
-	 */
+	/**
+	 * @description get query and batch params from routingContext
+	 * @param ctx
+	 * @return map {sqlString, batchParam}
+	 * */
 	@Override
 	public Map<String, Object> getQueryWithoutParam(RoutingContext ctx) throws Exception {
 

@@ -224,6 +224,7 @@ public class MainVerticle extends ApiRequestCommon {
 				.put("user_id", username)
 				;
 
+		// Verify username and password from db
 		ctx.vertx().eventBus().send(Constants.EVENTBUS_SQL_VERTICLE_ADDR, sqlParams, reply -> {
 			if (reply.succeeded()) {
 				String res = ((String) reply.result().body());
@@ -235,6 +236,8 @@ public class MainVerticle extends ApiRequestCommon {
 					if (new JsonArray(res).size() > 0) {
 						String comparePasswd = new JsonArray(res).getJsonObject(0).getString("password", "");
 						if (password.equals(comparePasswd)) {
+
+							// Send to client Generated JWT token
 							ctx.response().putHeader("Content-Type", "text/plain")
 							.end(jwtProvider.generateToken(
 									new JsonObject(),

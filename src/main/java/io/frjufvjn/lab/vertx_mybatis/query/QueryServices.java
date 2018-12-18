@@ -7,7 +7,7 @@ import io.vertx.ext.web.RoutingContext;
 
 /**
  * 	@author PJW
- *	@description Get Query String & Bind Values Using ORM Framework (MyBatis)
+ *	@description Get Query String & Bind Values Using MyBatis Framework
  */
 public interface QueryServices {
 
