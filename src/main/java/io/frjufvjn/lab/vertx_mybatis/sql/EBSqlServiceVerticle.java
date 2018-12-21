@@ -63,7 +63,7 @@ public class EBSqlServiceVerticle extends AbstractVerticle {
 				 * */
 
 			} catch (Exception e) {
-				msg.reply("fail");
+				msg.reply(Constants.EVENTBUS_SQL_VERTICLE_FAIL_SIGNAL);
 			}
 
 		}).completionHandler(ar -> {

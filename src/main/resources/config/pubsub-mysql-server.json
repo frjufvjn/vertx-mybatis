@@ -1,5 +1,5 @@
 {
-	"use-binlog":true,
+	"use-binlog":false,
     "url":"localhost",
     "port":3306,
     "connection-timeout":1000,

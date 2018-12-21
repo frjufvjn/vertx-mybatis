@@ -3,6 +3,9 @@ package io.frjufvjn.lab.vertx_mybatis.sql;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Guice;
 
 import io.frjufvjn.lab.vertx_mybatis.common.ApiResponseCommon;
@@ -11,6 +14,7 @@ import io.frjufvjn.lab.vertx_mybatis.query.QueryModule;
 import io.frjufvjn.lab.vertx_mybatis.query.QueryServices;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
@@ -20,6 +24,8 @@ import io.vertx.ext.web.RoutingContext;
  *
  */
 public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
+
+	private final Logger logger = LogManager.getLogger(SqlServiceImp.class);
 
 	/* (non-Javadoc)
 	 * @see io.frjufvjn.lab.vertx_mybatis.sql.SqlServices#sqlApiRead(io.vertx.ext.web.RoutingContext)
@@ -83,6 +89,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	 */
 	private void executeSqlCommonRead(RoutingContext ctx) throws Exception {
 		try {
+			userTokenInfo(ctx);
 			Map<String, Object> queryInfo = Guice.createInjector(new QueryModule()).getInstance(QueryServices.class).getQuery(ctx);
 			VertxSqlConnectionFactory.getClient().getConnection(conn -> {		
 				if (conn.failed()) serviceUnavailable(ctx);
@@ -113,6 +120,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	 */
 	private void executeSqlCommonCUD(RoutingContext ctx) throws Exception {
 		try {
+			userTokenInfo(ctx);
 			Map<String, Object> queryInfo = Guice.createInjector(new QueryModule()).getInstance(QueryServices.class).getQuery(ctx);
 			VertxSqlConnectionFactory.getClient().getConnection(conn -> {
 				if (conn.failed()) serviceUnavailable(ctx);
@@ -143,6 +151,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	 */
 	private void executeSqlCommonBatchCUD(RoutingContext ctx) throws Exception {
 		try {
+			userTokenInfo(ctx);
 			Map<String, Object> queryInfo = Guice.createInjector(new QueryModule()).getInstance(QueryServices.class).getQueryWithoutParam(ctx);
 
 			VertxSqlConnectionFactory.getClient().getConnection(conn -> {		
@@ -186,5 +195,13 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	 */
 	private void sendNotFoundSqlName(RoutingContext ctx) {
 		internalError(ctx, "The sqlName parameter is empty or the service can not be found in the service list (mybatis mapper).");
+	}
+	
+	/**
+	 * @param ctx
+	 */
+	private void userTokenInfo(RoutingContext ctx) {
+		JsonObject token = ctx.user().principal();
+		logger.info("service call, user token info :{}", token);
 	}
 }

@@ -240,7 +240,7 @@ public class MainVerticle extends ApiRequestCommon {
 							// Send to client Generated JWT token
 							ctx.response().putHeader("Content-Type", "text/plain")
 							.end(jwtProvider.generateToken(
-									new JsonObject(),
+									new JsonObject().put("aud", username),
 									new JWTOptions()
 									.setExpiresInMinutes(30)
 									));
@@ -267,14 +267,18 @@ public class MainVerticle extends ApiRequestCommon {
 		Set<String> allowHeaders = new HashSet<>();
 		allowHeaders.add("x-requested-with");
 		allowHeaders.add("Access-Control-Allow-Origin");
+		allowHeaders.add("authorization"); // NOTE: For Preflighted requests
 		allowHeaders.add("origin");
 		allowHeaders.add("Content-Type");
 		allowHeaders.add("accept");
+		allowHeaders.add("X-PINGARUNER"); // NOTE: For Preflighted requests
+
 		// CORS support
 		router.route().handler(CorsHandler.create("*")
 				.allowedHeaders(allowHeaders)
 				.allowedMethod(HttpMethod.GET)
 				.allowedMethod(HttpMethod.POST)
+				.allowedMethod(HttpMethod.OPTIONS) // NOTE: For Preflighted requests
 				//				.allowedMethod(HttpMethod.DELETE)
 				//				.allowedMethod(HttpMethod.PATCH)
 				//				.allowedMethod(HttpMethod.PUT)
