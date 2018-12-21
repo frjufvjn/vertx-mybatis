@@ -279,6 +279,7 @@ public class MainVerticle extends ApiRequestCommon {
 				.allowedMethod(HttpMethod.GET)
 				.allowedMethod(HttpMethod.POST)
 				.allowedMethod(HttpMethod.OPTIONS) // NOTE: For Preflighted requests
+				.maxAgeSeconds(86400)
 				//				.allowedMethod(HttpMethod.DELETE)
 				//				.allowedMethod(HttpMethod.PATCH)
 				//				.allowedMethod(HttpMethod.PUT)
