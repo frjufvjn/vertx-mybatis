@@ -107,12 +107,12 @@ public class QueryServiceImp implements QueryServices {
 		Map<String,Object> result = new LinkedHashMap<String,Object>();
 		String queryString = DEFAULT_SQL;
 		JsonArray jsonParam = new JsonArray();
-		
+
 		// sqlname validation
 		if ( !reqData.containsKey(SQL_NAME) ) {
-			throw new IllegalArgumentException("sqlName parameter not found");
+			throw new IllegalArgumentException("The sqlName parameter is empty or the service can not be found in the service list (mybatis mapper).");
 		}
-		
+
 		// MyBatis open session
 		try ( final SqlSession sqlsession = MyBatisConnectionFactory.getSqlSessionFactory().openSession(); ) {
 			String sqlName = reqData.get(SQL_NAME).toString();
@@ -129,15 +129,19 @@ public class QueryServiceImp implements QueryServices {
 
 			// get Parameter
 			List<ParameterMapping> paramMapping = boundSql.getParameterMappings();
-			
+
 			// sql bind parameter validation
 			if ( paramMapping.size() != reqData.size() ) {
-				throw new IllegalStateException("The number of sql parameter is insufficient or exceeded.");
+				throw new IllegalArgumentException("The number of sql parameter is insufficient or exceeded.");
 			}
 
 			for ( ParameterMapping mapping : paramMapping ) {
 				String key = mapping.getProperty();
 				Object value = ((Map<String,Object>)reqData).get(key);
+
+				if ( !reqData.containsKey(key) ) {
+					throw new IllegalArgumentException("The requested sql parameter does not match the parameter of mybatis mapper.");
+				}
 
 				jsonParam.add(value);
 			}

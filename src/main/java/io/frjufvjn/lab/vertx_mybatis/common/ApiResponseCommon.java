@@ -64,6 +64,18 @@ public class ApiResponseCommon {
 	}
 
 	/**
+	 * Send back a response with status 400 BadRequest Error.
+	 *
+	 * @param context routing context
+	 * @param ex      exception
+	 */
+	protected void badRequest(RoutingContext context, Throwable ex) {
+		context.response().setStatusCode(400)
+		.putHeader("content-type", "application/json")
+		.end(new JsonObject().put("error", ex.getMessage()).encodePrettily());
+	}
+
+	/**
 	 * Send back a response with status 503 Service Unavailable.
 	 *
 	 * @param context routing context

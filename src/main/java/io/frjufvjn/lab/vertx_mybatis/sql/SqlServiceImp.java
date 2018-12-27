@@ -108,9 +108,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 				}
 			});
 		} catch ( IllegalArgumentException iae ) {
-			sendNotFoundSqlName(ctx);
-		} catch ( IllegalStateException ise ) {
-			internalError(ctx, ise);
+			badRequest(ctx, iae);
 		}
 	}
 
@@ -139,9 +137,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 				}
 			});
 		} catch ( IllegalArgumentException iae ) {
-			sendNotFoundSqlName(ctx);
-		} catch ( IllegalStateException ise ) {
-			internalError(ctx, ise);
+			badRequest(ctx, iae);
 		}
 	}
 
@@ -172,9 +168,7 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 				}
 			});
 		} catch ( IllegalArgumentException iae ) {
-			sendNotFoundSqlName(ctx);
-		} catch ( IllegalStateException ise ) {
-			internalError(ctx, ise);
+			badRequest(ctx, iae);
 		}
 	}
 
@@ -193,15 +187,8 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	/**
 	 * @param ctx
 	 */
-	private void sendNotFoundSqlName(RoutingContext ctx) {
-		internalError(ctx, "The sqlName parameter is empty or the service can not be found in the service list (mybatis mapper).");
-	}
-	
-	/**
-	 * @param ctx
-	 */
 	private void userTokenInfo(RoutingContext ctx) {
 		JsonObject token = ctx.user().principal();
-		logger.info("service call, user token info :{}", token);
+		logger.info("service call, user token info :{}, method :{}", token, Thread.currentThread().getStackTrace()[2].getMethodName());
 	}
 }
