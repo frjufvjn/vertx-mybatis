@@ -11,7 +11,7 @@ connection.queryWithParams("select * from test where id = ?", new JsonArray().ad
 });
 ```
 #### get query and param
-Once you have mybatis sqlsession, you can use BoundSql and ParameterMapping methods to retrieve queries and parameters and use them in your vertex sql client. See [QueryGetter.java](src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryGetter.java)
+Once you have mybatis sqlsession, you can use BoundSql and ParameterMapping methods to retrieve queries and parameters and use them in your vertex sql client. See [QueryGetter.java](src/main/java/io/frjufvjn/lab/vertx_mybatis/query/QueryServiceImp.java)
 * org.apache.ibatis.mapping.BoundSql
 * org.apache.ibatis.mapping.ParameterMapping
 ```java
