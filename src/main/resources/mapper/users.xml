@@ -6,6 +6,10 @@
 		SELECT password FROM cs_usermaster where user_id = #{user_id}
 	</select>
 	
+	<insert id="sql_user_create">
+		insert into cs_usermaster (user_id, password, password_salt) values (#{username}, #{password}, #{password_salt})
+	</insert>
+	
 	<select id="userList" resultType="map">
 		select * from USERS
 	</select>

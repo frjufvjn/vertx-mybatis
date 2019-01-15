@@ -1,228 +1,311 @@
 <html>
+
 <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<meta charset="utf-8">
+  	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://npmcdn.com/axios/dist/axios.min.js"></script>
 </head>
+
 <body>
 
-<h1>POM Admin Test</h1>
+	<h1>API Admin Test</h1>
+	<h3>- DB Service Test Page</h3>
+	<h3>- MySQL Server </h3>
 
-<br>
-<br>
-<form id="loginForm" onsubmit="return false;">
-	<input type="text" name="username" value="kkkkkk" />
-	<input type="password" name="passwd" value="123qwe!@#" />
-	<input type="button" value="Sign In" onclick="signIn(this.form.username.value, this.form.passwd.value)" />
-</form>
-<div id="login">
-    <div id="token">Current token:</div>
-</div>
-<br>
-<br>
+	<br>
+	<br>
+	<h3>1. Login</h3>
+	<form id="loginForm" onsubmit="return false;">
+		id:<input type="text" name="username" value="tim" />
+		pw:<input type="password" name="passwd" value="sausages" />
+		<input type="checkbox" id="isEncryptLogin" name="encryptLogin[]" value="1" />is encrypt js
+		<input type="button" value="Sign In" onclick="signIn(this.form.username.value, this.form.passwd.value)"/>
+	</form>
+	
+	<div id="login">
+		<div id="token">Current token:</div>
+	</div>
+	<br>
+	<br>
+	
+	<h3>2. Create User With Salt</h3>
+	<div id="createUser">
+		id:<input type="text" id="create_username" name="create_username" value="" />
+		pw:<input type="password" id="create_password" name="create_password" value="" />
+		<input type="checkbox" id="isEncrypt" name="encrypt[]" value="1" />is encrypt js
+		<a href="#" id="createUserTest">USER Create Execute</a>
+	</div>
+	
+	<h3>3. API CRUD TEST</h3>
+	<div id="read">
+		<a href="#" id="readtest">Read Test</a>
+	</div>
 
-<div id="read">
-	<a href="#" id="readtest">Read Test</a>
-</div>
+	<div id="create">
+		<a href="#" id="createtest">Create Test</a>
+	</div>
 
-<div id="create">
-	<a href="#" id="createtest">Create Test</a>
-</div>
+	<div id="update">
+		<a href="#" id="updatetest">Update Test</a>
+	</div>
 
-<div id="update">
-	<a href="#" id="updatetest">Update Test</a>
-</div>
+	<div id="delete">
+		<a href="#" id="deletetest">Delete Test</a>
+	</div>
+	
+	<h3>4. API BATCH CRUD TEST</h3>
+	<div id="insertBatch">
+		<a href="#" id="insertBatchTest">Insert Batch Test</a>
+	</div>
 
-<div id="delete">
-	<a href="#" id="deletetest">Delete Test</a>
-</div>
-
-<div id="createBatch">
-	<a href="#" id="createtestBatch">Create Batch Test</a>
-</div>
-
-<br/><br/><br/>
-<form onsubmit="return false;">
-	<input type="text" name="message" value="" /><input
-		type="button" value="Send Web Socket Data"
-		onclick="send(this.form.message.value)" />
-	<h3>Output</h3>
-	<textarea id="responseText" style="width: 500px; height: 300px;"></textarea>
-</form>
-<script src="./sha256.js" type="text/javascript" charset="UTF-8"></script>
-<script type="text/javascript" charset="UTF-8">
-	function signIn(argUsername, argPasswd) {
-		var payload = {
-        		username: argUsername,
-        		password: SHA256(argPasswd)
-        };
-        var url = location.protocol.concat("//", location.host, "/api/newToken");
-
-		var xhr = new XMLHttpRequest();
-
-		xhr.open("POST", url, true);
-		xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-		xhr.responseType = "text";
-		xhr.onload = function(event) {
-			if (xhr.status == 200) {
-				console.log(xhr.response);
-				$('#token').html('Current Token: ' + xhr.response);
-			} else {
-				console.log(event);
-			}
+	<script src="./sha256.js" type="text/javascript" charset="UTF-8"></script>
+	<script type="text/javascript" charset="UTF-8">
+		// axios test function 
+		function axiosTest() {
+			
+			var payload = {
+					username: "kkkkkk",
+					password: SHA256("123456")
+				};
+			axios.post('http://10.1.12.231:18080/api/newToken', payload)
+		    .then( response => { console.log(response) } )
+		    .catch( response => { console.log(response) } );
 		}
+		
+		
+		
+		
+		
+		function signIn(argUsername, argPasswd) {
+			var inputPw;
+			var isSeasonChk = $("input:checkbox[name='encryptLogin[]']").is(":checked");
+	    	
+	        if(!isSeasonChk) inputPw = argPasswd;
+	        else inputPw = SHA256(argPasswd);
+	        
+			var payload = {
+				username: argUsername,
+				password: inputPw
+			};
+			var url = location.protocol.concat("//", location.host, "/api/newToken");
 
-		xhr.send(JSON.stringify(payload));
-	}
-    $(document).ready(function () {
-    	console.log(SHA256("123qwe!@#"));
-        $('#generateToken').on('click', function () {
-            /*$.ajax({
-                url: '/api/newToken',
-                type: 'GET',
-                dataType: 'text',
-                success: function (text) {
-                	console.log(text);
-                    $('#token').html('Current Token: ' + text);
-                }
-            });*/
+			var xhr = new XMLHttpRequest();
 
-        });
-        
-        $('#readtest').on('click', function () {
-        	var payload = {
-				username: 'kkkkkk'
-    		};
+			xhr.open("POST", url, true);
+			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+			xhr.responseType = "text";
+			xhr.onload = function (event) {
+				if (xhr.status == 200) {
+					console.log(xhr.response);
+					$('#token').html('Current Token: ' + xhr.response);
+					localStorage.setItem("com.hansol.pom.pomadmin.jwttoken", xhr.response);
+				} else {
+					console.log(event);
+				}
+			}
 
-        	$.ajax({
-        		url: '/api/read',
-        		type: 'POST',
-        		dataType: 'text',
-        		contentType: 'application/json; charset=utf8',
-        		data: JSON.stringify(payload),
-        		headers: {
-                    "Authorization": "Bearer " + $('#token').html().substring(15)
-                },
-                success: function (text) {
-                    console.log(text);
-                },
-                error: function (err) {
-                	var contentType = err.getResponseHeader("content-type");
-                	console.log('contentType : ' + contentType);
-                    console.log('Error: ' + err.toString());
-                    console.log(JSON.parse(err.responseText).error);
-                }
-        	});
-        });
-        // createtest
-        $('#createtest').on('click', function () {
-        	
-    		var payload = {
-    				sqlName : 'sql_insert_test',
-    				data1 : 'aa',
-    				data2 : 'bb'
-        		};
+			xhr.send(JSON.stringify(payload));
+		}
+		$(document).ready(function () {
+			
+			
+			// Read API Test
+			$('#readtest').on('click', function () {
+				var payload = {
+					"sqlName": "sql_read_test",
+					"user_id": "kkkkkk"
+				};
+				// xhttp.setRequestHeader('X-PINGARUNER', 'pingpong');
+				var header = {
+						  headers: {
+							  "Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken"),
+							  "X-PINGARUNER": "pingpong"
+						  }
+						};
+				axios.post('http://10.1.12.231:18080/api/read', payload, header)
+			    .then( response => { console.log(response) } )
+			    .catch( response => { console.log(response) } );
+				
+				/*
+				$.ajax({
+					url: '/api/read',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf8',
+					data: JSON.stringify(payload),
+					headers: {
+						"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+					},
+					success: function (res) {
+						console.log(JSON.stringify(res));
+					},
+					error: function (err) {
+						var contentType = err.getResponseHeader("content-type");
+						console.log('contentType : ' + contentType);
+						console.log('Error: ' + err.toString());
+						console.log(JSON.parse(err.responseText).error);
+					}
+				});*/
+			});
+			
+			
+			// Create User Test
+			$('#createUserTest').on('click', function () {
+				var inputPw;
+		        var isSeasonChk = $("input:checkbox[name='encrypt[]']").is(":checked");
+		    	
+		        if(!isSeasonChk) inputPw = $('#create_password').val();
+		        else inputPw = SHA256($('#create_password').val());
 
-        	$.ajax({
-        		url: '/api/create',
-        		type: 'POST',
-        		dataType: 'text',
-        		contentType: 'application/json; charset=utf8',
-        		data: JSON.stringify(payload),
-        		headers: {
-                    "Authorization": "Bearer " + $('#token').html().substring(15)
-                },
-                success: function (text) {
-                    console.log(text);
-                },
-                error: function (err) {
-                    console.log('Error: ' + err.toString());
-                }
-        	});
-        });
-        
-     	// update test
-        $('#updatetest').on('click', function () {
-        	
-    		var payload = {
-    				sqlName : 'sql_update_test',
-    				data1 : 'aa',
-    				data2 : 'xxx'
-        		};
+				var payload = {
+						sqlName: 'sql_user_create',
+						username: $('#create_username').val(),
+						password: inputPw
+					};
 
-        	$.ajax({
-        		url: '/api/update',
-        		type: 'POST',
-        		dataType: 'text',
-        		contentType: 'application/json; charset=utf8',
-        		data: JSON.stringify(payload),
-        		headers: {
-                    "Authorization": "Bearer " + $('#token').html().substring(15)
-                },
-                success: function (text) {
-                    console.log(text);
-                },
-                error: function (err) {
-                    console.log('Error: ' + err.toString());
-                }
-        	});
-        });
-     	
-     	// delete test
-        $('#deletetest').on('click', function () {
-        	
-    		var payload = {
-    				sqlName : 'sql_delete_test',
-    				data1 : 'aa2',
-        		};
+					$.ajax({
+						url: '/api/usercreate',
+						type: 'POST',
+						dataType: 'json',
+						contentType: 'application/json; charset=utf8',
+						data: JSON.stringify(payload),
+						headers: {
+							"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+						},
+						success: function (res) {
+							console.log(res);
+						},
+						error: function (err) {
+							console.log('Error: ' + err.toString());
+						}
+					});
+			});
+			
+			
+			// Create API Test
+			$('#createtest').on('click', function () {
 
-        	$.ajax({
-        		url: '/api/delete',
-        		type: 'POST',
-        		dataType: 'text',
-        		contentType: 'application/json; charset=utf8',
-        		data: JSON.stringify(payload),
-        		headers: {
-                    "Authorization": "Bearer " + $('#token').html().substring(15)
-                },
-                success: function (text) {
-                    console.log(text);
-                },
-                error: function (err) {
-                    console.log('Error: ' + err.toString());
-                }
-        	});
-        });
+				var payload = {
+					sqlName: 'sql_insert_test',
+					data1: 'aa',
+					data2: 'bb',
+					data3: 'cc'
+				};
 
-		$('#createtestBatch').on('click', function () {
-        	
-    		var payload = {
-    				sqlName : "sql_create_batch_test",
-    				arr : [
-    					{col1:1, col2:"a"},
-    					{col1:2, col2:"b"},
-    					{col1:3, col2:"c"},
-    					{col1:4, col2:"d"},
-    					{col1:5, col2:"e"}
-    				]
-        		};
+				$.ajax({
+					url: '/api/create',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf8',
+					data: JSON.stringify(payload),
+					headers: {
+						"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+					},
+					success: function (res) {
+						console.log(res);
+					},
+					error: function (err) {
+						console.log('Error: ' + err.toString());
+					}
+				});
+			});
 
-        	$.ajax({
-        		url: '/api/create/multi',
-        		type: 'POST',
-        		dataType: 'text',
-        		contentType: 'application/json; charset=utf8',
-        		data: JSON.stringify(payload),
-        		headers: {
-                    "Authorization": "Bearer " + $('#token').html().substring(15)
-                },
-                success: function (text) {
-                    console.log(text);
-                },
-                error: function (err) {
-                    console.log('Error: ' + err.toString());
-                }
-        	});
-        });
-    });
-</script>
+			
+			
+			
+			// Update API Test
+			$('#updatetest').on('click', function () {
+
+				var payload = {
+					sqlName: 'sql_update_test',
+					data1: 'aa',
+					data2: 'xxx'
+				};
+
+				$.ajax({
+					url: '/api/update',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf8',
+					data: JSON.stringify(payload),
+					headers: {
+						"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+					},
+					success: function (res) {
+						console.log(res);
+					},
+					error: function (err) {
+						console.log('Error: ' + err.toString());
+					}
+				});
+			});
+
+			
+			
+			
+			// Delete API Test
+			$('#deletetest').on('click', function () {
+
+				var payload = {
+					sqlName: 'sql_delete_test',
+					data1: 'aa',
+				};
+
+				$.ajax({
+					url: '/api/delete',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf8',
+					data: JSON.stringify(payload),
+					headers: {
+						"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+					},
+					success: function (res) {
+						console.log(res);
+					},
+					error: function (err) {
+						console.log('Error: ' + err.toString());
+					}
+				});
+			});
+			
+			
+			
+			
+			// Batch Create/Update/Delete API Test
+			$('#insertBatchTest').on('click', function () {
+
+				var payload = {
+					sqlName: "sql_insert_batch_test",
+					arr: [
+						{ data1: "1", data2: "a" },
+						{ data1: "2", data2: "b" },
+						{ data1: "3", data2: "c" },
+						{ data1: "4", data2: "d" },
+						{ data1: "5", data2: "e" }
+					]
+				};
+
+				$.ajax({
+					url: '/api/create/multi',
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json; charset=utf8',
+					data: JSON.stringify(payload),
+					headers: {
+						"Authorization": "Bearer " + localStorage.getItem("com.hansol.pom.pomadmin.jwttoken")
+					},
+					success: function (res) {
+						console.log(res);
+					},
+					error: function (err) {
+						console.log('Error: ' + err.toString());
+					}
+				});
+			});
+		});
+	</script>
 </body>
+
 </html>

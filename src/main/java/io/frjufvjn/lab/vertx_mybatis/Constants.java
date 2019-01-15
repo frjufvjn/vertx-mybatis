@@ -10,4 +10,6 @@ public final class Constants {
 	
 	public static final String EVENTBUS_SQL_VERTICLE_ADDR = "msg.eventbussqlverticle";
 	public static final String EVENTBUS_SQL_VERTICLE_FAIL_SIGNAL = "fail";
+	
+	public static final String API_AHTHENTICATE_QUERY = "SELECT PASSWORD, PASSWORD_SALT FROM CS_USERMASTER WHERE user_id = ?";
 }

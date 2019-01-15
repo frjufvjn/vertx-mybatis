@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.frjufvjn.lab.vertx_mybatis.common.ApiRequestCommon;
+import io.frjufvjn.lab.vertx_mybatis.factory.VertxSqlConnectionFactory;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
@@ -30,7 +31,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Log4j2LogDelegateFactory;
 import io.vertx.core.shareddata.LocalMap;
+import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.KeyStoreOptions;
+import io.vertx.ext.auth.jdbc.JDBCAuth;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.jwt.JWTOptions;
@@ -196,6 +199,11 @@ public class MainVerticle extends ApiRequestCommon {
 		 * */
 		router.route(HttpMethod.POST, "/api/newToken").handler(this::generateJwtToken);
 
+		/**
+		 * @description API User Create
+		 * */
+		router.post("/api/usercreate").handler(this::userCreate);
+
 
 
 		/**
@@ -211,6 +219,36 @@ public class MainVerticle extends ApiRequestCommon {
 	}
 
 
+
+	/**
+	 * @description API User Create With SALT 
+	 * 	<li>TODO pseudo code
+	 * @param ctx
+	 */
+	private void userCreate(RoutingContext ctx) {
+		String password = ctx.getBodyAsJson().getString("password");
+		JDBCAuth jdbcAuth = JDBCAuth.create(vertx, VertxSqlConnectionFactory.getClient());
+		String salt = jdbcAuth.generateSalt();
+		String hash = jdbcAuth.computeHash(password, salt);
+
+		// Context Transform
+		JsonObject jobj = new JsonObject();
+		ctx.getBodyAsJson().stream().forEach(action -> {
+			logger.info("key:{}, value:{}", action.getKey(), action.getValue());
+			if ("password".equals(action.getKey())) {
+				jobj.put(action.getKey(), hash);
+			} else {
+				jobj.put(action.getKey(), action.getValue());
+			}
+		});
+		jobj.put("password_salt", salt);
+		ctx.setBody(jobj.toBuffer());
+
+		apiCreate(ctx);
+	}
+
+
+
 	/**
 	 * @description JWT Token Generate
 	 * @param ctx
@@ -219,42 +257,24 @@ public class MainVerticle extends ApiRequestCommon {
 
 		String username = ctx.getBodyAsJson().getString("username");
 		String password = ctx.getBodyAsJson().getString("password");
-		JsonObject sqlParams = new JsonObject()
-				.put("sqlName", "sql_user_authentication")
-				.put("user_id", username)
-				;
 
 		// Verify username and password from db
-		ctx.vertx().eventBus().send(Constants.EVENTBUS_SQL_VERTICLE_ADDR, sqlParams, reply -> {
-			if (reply.succeeded()) {
-				String res = ((String) reply.result().body());
-				if ( Constants.EVENTBUS_SQL_VERTICLE_FAIL_SIGNAL.equals(res) ) {
-					ctx.response().setStatusCode(500)
-					.putHeader("content-type", "application/json")
-					.end( new JsonObject().put("error", "Authentication Server Error").encodePrettily() );
-				} else {
-					if (new JsonArray(res).size() > 0) {
-						String comparePasswd = new JsonArray(res).getJsonObject(0).getString("password", "");
-						if (password.equals(comparePasswd)) {
+		AuthProvider authProvider = JDBCAuth.create(vertx, VertxSqlConnectionFactory.getClient())
+				.setAuthenticationQuery(Constants.API_AHTHENTICATE_QUERY);
 
-							// Send to client Generated JWT token
-							ctx.response().putHeader("Content-Type", "text/plain")
-							.end(jwtProvider.generateToken(
-									new JsonObject().put("aud", username),
-									new JWTOptions()
-									.setExpiresInMinutes(30)
-									));
-						} else {
-							ctx.response().setStatusCode(401)
-							.putHeader("content-type", "application/json")
-							.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
-						}
-					} else {
-						ctx.response().setStatusCode(401)
-						.putHeader("content-type", "application/json")
-						.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
-					}
-				}
+		authProvider.authenticate(new JsonObject().put("username", username).put("password", password), res -> {
+			if (res.succeeded()) {
+				// Send to client Generated JWT token
+				ctx.response().putHeader("Content-Type", "text/plain")
+				.end(jwtProvider.generateToken(
+						new JsonObject().put("aud", username),
+						new JWTOptions()
+						.setExpiresInMinutes(30)
+						));
+			} else {
+				ctx.response().setStatusCode(401)
+				.putHeader("content-type", "application/json")
+				.end(new JsonObject().put("error", "Unauthorized").encodePrettily());
 			}
 		});
 	}
@@ -273,6 +293,10 @@ public class MainVerticle extends ApiRequestCommon {
 		allowHeaders.add("accept");
 		allowHeaders.add("X-PINGARUNER"); // NOTE: For Preflighted requests
 
+		/**
+		 * @description TODO Vertx-web Supporting Multiple Origins in CorsHandler.create (vertx google groups : https://groups.google.com/forum/#!topic/vertx/PHdiMDi-NP8)
+		 * <li>localhost|127\\.0\\.0\\.1|(.*\\.)*dev\\.corp\\.example\\.com
+		 * */
 		// CORS support
 		router.route().handler(CorsHandler.create("*")
 				.allowedHeaders(allowHeaders)

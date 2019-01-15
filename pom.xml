@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -71,10 +72,16 @@
 			<artifactId>vertx-lang-js</artifactId>
 			<version>${vertx.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-auth-jwt</artifactId>
+			<version>${vertx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-auth-jdbc</artifactId>
 			<version>${vertx.version}</version>
 		</dependency>
 
