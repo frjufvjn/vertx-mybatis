@@ -1,5 +1,5 @@
 # vertx-mybatis
-Use asynchronous non-blocking database access using the sql client provided by vertx. Then you organize your project so that it is easy to use without giving up the ORM framework. 
+Use asynchronous non-blocking database access using the sql client provided by vertx. Then you organize your project so that it is easy to use without giving up the SQL Mapper framework (MyBatis) ~~ORM framework~~. 
 ## Description
 ### Synopsis
 #### pure vertx sql client
@@ -48,6 +48,7 @@ Unlike the [vertx-mysql-binlog-client](https://github.com/guoyu511/vertx-mysql-b
 [related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/BinLogClientVerticle.java)
 
 ##### PostgreSQL (WIP)
+#### GraphQL Integration (WIP)
 #### Large DB data csv export
 _Recently, we had to add a large Excel download to an existing web application that had a lot of side effects when adding services._
 1. Invoke the REST API with parameters including the number of patches to the legacy application (Spring framework), assuming 50,000 data requests.
