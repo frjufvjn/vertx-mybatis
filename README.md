@@ -35,9 +35,11 @@ for ( ParameterMapping mapping : paramMapping ) {
 #### Goal
 Provides boilerplate for developers to create sql only and make it easy to access api server easily.
 #### CRUD API feature
-#### Batch CRUD API feature
+[related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/common/ApiRequestCommon.java)
+#### Batch CUD API feature
+[related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/common/ApiRequestCommon.java)
 #### Realtime changed data Pub/Sub feature
-##### MySQL
+##### - MySQL
 Use [mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
 & Inspired by [vertx-mysql-binlog-client](https://github.com/guoyu511/vertx-mysql-binlog-client)
 
@@ -47,7 +49,7 @@ Unlike the [vertx-mysql-binlog-client](https://github.com/guoyu511/vertx-mysql-b
 
 [related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/mysqlBinlog/BinLogClientVerticle.java)
 
-##### PostgreSQL (WIP)
+##### - PostgreSQL (WIP)
 #### GraphQL Integration (WIP)
 #### Large DB data csv export
 _Recently, we had to add a large Excel download to an existing web application that had a lot of side effects when adding services._
