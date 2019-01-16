@@ -34,6 +34,18 @@ for ( ParameterMapping mapping : paramMapping ) {
 ### Usecase
 #### Goal
 Provides boilerplate for developers to create sql only and make it easy to access api server easily.
+#### The way to make REST API
+1. Create or Edit MyBatis mapper.xml
+2. HTTP POST method Call
+```
+header --> "Authorization": "Bearer `JWT Token`" // It can be obtained through "/api/newToken" service.
+payload = {
+    sqlName: 'sqlid', // mybatis sql id
+    param1: 'foo',
+    param2: 'bar',
+    ...
+}
+```
 #### CRUD API feature
 [related codes](./src/main/java/io/frjufvjn/lab/vertx_mybatis/common/ApiRequestCommon.java)
 #### Batch CUD API feature
