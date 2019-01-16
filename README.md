@@ -3,7 +3,7 @@ Use asynchronous non-blocking database access using the sql client provided by v
 ## Description
 ### Synopsis
 #### pure vertx sql client
-The code block below is an example of a pure sql client code provided by vertx. I wanted to build an sql service using (without giving up) an ORM framework like mybatis.
+The code block below is an example of a pure sql client code provided by vertx. I wanted to build an sql service using (without giving up) an SQL Mapper framework like mybatis.
 ```java
 final SQLConnection connection = conn.result();
 connection.queryWithParams("select * from test where id = ?", new JsonArray().add(2), rs -> {
