@@ -36,7 +36,11 @@ for ( ParameterMapping mapping : paramMapping ) {
 Provides boilerplate for developers to create sql only and make it easy to access api server easily.
 #### The way to make REST API
 1. Create or Edit MyBatis mapper.xml
-2. HTTP POST method Call
+2. URL
+- C: /api/create, R: /api/read, U: /api/update, D: /api/delete
+- Batch C: /api/create/multi, U: /api/update/multi, D: /api/delete/multi
+3. HTTP POST method Call
+
 ```
 header --> "Authorization": "Bearer `JWT Token`" // It can be obtained through "/api/newToken" service.
 payload = {
