@@ -25,6 +25,7 @@
 		<bcprov.version>1.58</bcprov.version>
 		<jasypt.version>1.9.2</jasypt.version>
 		<commonslang3.version>3.3.2</commonslang3.version>
+		<junit-version>4.12</junit-version>
 	</properties>
 
 	<repositories>
@@ -45,7 +46,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -83,6 +84,13 @@
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-auth-jdbc</artifactId>
 			<version>${vertx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-unit</artifactId>
+			<version>${vertx.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
