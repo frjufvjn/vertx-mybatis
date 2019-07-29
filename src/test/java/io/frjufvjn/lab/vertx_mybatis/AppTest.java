@@ -15,11 +15,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Scopes;
+
 import io.frjufvjn.lab.vertx_mybatis.factory.MyBatisConnectionFactory;
+import io.frjufvjn.lab.vertx_mybatis.sql.SqlServiceImp;
+import io.frjufvjn.lab.vertx_mybatis.sql.SqlServices;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.ext.web.RoutingContext;
 import junit.framework.TestCase;
 
 @RunWith(VertxUnitRunner.class)
@@ -40,9 +48,41 @@ public class AppTest extends TestCase {
 	}
 
 	@Test
+	public void test_blockingCode(TestContext ctx) {
+		Async async = ctx.async();
+		
+		for ( int i=0; i<5; i++ ) {
+			
+		}
+		
+		async.complete();
+	}
+	@Test
 	public void test_helloWorld(TestContext context) {
 		Async async = context.async();
 		context.assertEquals(1, 1);
+		async.complete();
+	}
+	
+	@Test
+	public void test_service(TestContext context) {
+		Async async = context.async();
+		
+		Injector sqlService = Guice.createInjector(new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(SqlServices.class).to(SqlServiceImp.class).in(Scopes.SINGLETON);
+			}
+		});
+		
+		RoutingContext ctx = null;
+		try {
+			// ctx.setBody(body);
+			sqlService.getInstance(SqlServices.class).sqlApiRead(ctx);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 		async.complete();
 	}
 

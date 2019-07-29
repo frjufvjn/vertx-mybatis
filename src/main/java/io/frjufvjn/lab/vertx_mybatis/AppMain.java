@@ -97,7 +97,7 @@ public class AppMain
 						new String[]{
 								"io.frjufvjn.lab.vertx_mybatis.MainVerticle" // "io.frjufvjn.lab.vertx_mybatis.DatabaseVerticle"
 								, "-cp", "target/vertx-mybatis-1.0.0.jar" 
-								// , "-instances", Integer.toString(NUMBER_OF_CPU)
+								, "-instances", Integer.toString(NUMBER_OF_CPU)
 								// , "-ha"
 								// , "--worker"
 								// For hsqldb , "-Dtextdb.allow_full_path=true"

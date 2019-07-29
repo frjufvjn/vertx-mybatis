@@ -178,6 +178,8 @@ public class SqlServiceImp extends ApiResponseCommon implements SqlServices {
 	 */
 	private void sendReadResult(RoutingContext ctx, AsyncResult<ResultSet> ar) {
 		if ( ar.result().getRows().size() > 0 ) {
+			logger.info("column info :{}", ar.result().getColumnNames().toString());
+			logger.info("Array confirm : {}", ar.result().getResults() );
 			ok(ctx, ar.result().getRows().toString());
 		} else {
 			noContent(ctx);

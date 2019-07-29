@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="test">
-
+	
+	<select id="sysmon_get_server_list" parameterType="map" resultType="map">
+		SELECT DEVICE_ID, DEVICE_IP, DEVICE_PORT, READ_COMMUNITY, SNMP_VERSION, SNMP_YN,
+			ALARM_YN, DISP_YN, PING_YN
+		FROM T_DEVICE
+		WHERE USE_YN = 'Y'
+	</select>
+	
+	<select id="sql_mysql_sleep_5" parameterType="map" resultType="map">
+		select sleep(5)
+	</select>
+	
 	<sql id="including">
 		SELECT * FROM test1
 	</sql>
@@ -14,6 +25,10 @@
 	
 	<select id="sql_mysql_live_01" parameterType="map" resultType="map">
 		select count(*) row_cnt from test1
+	</select>
+	
+	<select id="sql_sleep_15" parameterType="map" resultType="map">
+		select sleep(15)
 	</select>
 	
 	<select id="sql_read_test" parameterType="map">

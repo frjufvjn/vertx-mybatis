@@ -61,6 +61,8 @@
 
 	<script src="./sha256.js" type="text/javascript" charset="UTF-8"></script>
 	<script type="text/javascript" charset="UTF-8">
+		
+	var urlHeaderStr = location.protocol + '//' + location.host;
 		// axios test function 
 		function axiosTest() {
 			
@@ -68,7 +70,7 @@
 					username: "kkkkkk",
 					password: SHA256("123456")
 				};
-			axios.post('http://10.1.12.231:18080/api/newToken', payload)
+			axios.post( urlHeaderStr + '/api/newToken', payload)
 		    .then( response => { console.log(response) } )
 		    .catch( response => { console.log(response) } );
 		}
@@ -123,7 +125,7 @@
 							  "X-PINGARUNER": "pingpong"
 						  }
 						};
-				axios.post('http://10.1.12.231:18080/api/read', payload, header)
+				axios.post(urlHeaderStr + '/api/read', payload, header)
 			    .then( response => { console.log(response) } )
 			    .catch( response => { console.log(response) } );
 				
