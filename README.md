@@ -1,4 +1,4 @@
-# vertx-mybatis
+# vertx-mybatis ![Success](https://img.shields.io/badge/GitHub_Actions-success-success.svg?logo=github&logoColor=white)
 Use asynchronous non-blocking database access using the sql client provided by vertx. Then you organize your project so that it is easy to use without giving up the SQL Mapper framework (MyBatis) ~~ORM framework~~. 
 ## Description
 ### Synopsis
