@@ -25,7 +25,7 @@
 		<bcprov.version>1.58</bcprov.version>
 		<jasypt.version>1.9.2</jasypt.version>
 		<commonslang3.version>3.3.2</commonslang3.version>
-		<junit-version>4.12</junit-version>
+		<junit-version>4.13.1</junit-version>
 	</properties>
 
 	<repositories>
