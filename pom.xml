@@ -20,7 +20,7 @@
 		<mybatis.version>3.3.0</mybatis.version>
 		<hsqldb.version>2.3.4</hsqldb.version>
 		<ojdbc14.version>10.2.0.3.0</ojdbc14.version>
-		<poi.version>3.17</poi.version>
+		<poi.version>4.1.1</poi.version>
 		<guice.version>4.0</guice.version>
 		<bcprov.version>1.58</bcprov.version>
 		<jasypt.version>1.9.2</jasypt.version>
